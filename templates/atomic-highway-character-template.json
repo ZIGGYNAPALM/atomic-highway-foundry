@@ -67,9 +67,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "<div class=\"fortune-card\">\n  <h2>FORTUNE</h2>\n\n  <p><button type=\"button\"\n    class=\"fortune-extra\"\n    data-cost=\"1\">Extra Success — 1 Fortune per Success</button></p>\n\n  <p><button type=\"button\"\n    class=\"fortune-spend\"\n    data-cost=\"2\">Plot Tweak — 2 Fortune</button></p>\n\n  <p><button type=\"button\"\n    class=\"fortune-spend\"\n    data-cost=\"2\">Dual Action — 2 Fortune</button></p>\n\n  <p><button type=\"button\"\n    class=\"fortune-spend\"\n    data-cost=\"3\">Reroll Bad Things Happen — 3 Fortune</button></p>\n\n  <p><button type=\"button\"\n    class=\"fortune-spend\"\n    data-cost=\"5\">Plot Twist — 5 Fortune</button></p>\n\n  <p><button type=\"button\"\n    class=\"fortune-reduce\"\n    data-cost=\"2\">Reduce Opponent's Successes — 2 Fortune per Success</button></p>\n\n</div>\n",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											},
@@ -10129,7 +10129,7 @@
 				"hidden": [],
 				"attributeBar": {},
 				"statusEffects": {},
-				"templateSystemUniqueVersion": 355774935
+				"templateSystemUniqueVersion": 59272812
 			},
 			"flags": {
 				"custom-system-builder": {
