@@ -91,9 +91,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -162,9 +162,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -233,9 +233,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -304,9 +304,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -375,9 +375,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -446,9 +446,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -517,9 +517,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -588,9 +588,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -659,9 +659,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -730,9 +730,9 @@
 												"value": " ",
 												"prefix": "",
 												"suffix": "",
-												"rollMessage": "FORTUNE TEST",
+												"rollMessage": "%{return await game.macros.getName('Fortune Engine').execute({actorId: entity.id});}%",
 												"altRollMessage": "",
-												"rollMessageToChat": true,
+												"rollMessageToChat": false,
 												"altRollMessageToChat": true,
 												"style": "button"
 											}
@@ -10129,7 +10129,7 @@
 				"hidden": [],
 				"attributeBar": {},
 				"statusEffects": {},
-				"templateSystemUniqueVersion": 3936687830
+				"templateSystemUniqueVersion": 85154843
 			},
 			"flags": {
 				"custom-system-builder": {
