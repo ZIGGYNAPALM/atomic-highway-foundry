@@ -15,7 +15,7 @@ Hooks.once("ready", () => {
 
     if (maxHealth <= 0) return;
 
-    const needle = sheet.querySelector(".v6-health-dial-needle");
+    const needle = sheet.querySelector(".v6-health-dial-needle img");
     if (!needle) return;
 
     const ratio = Math.max(0, Math.min(1, health / maxHealth));
