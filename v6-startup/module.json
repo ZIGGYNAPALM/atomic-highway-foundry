@@ -2,7 +2,7 @@
   "id": "v6-startup",
   "title": "V6 Startup",
   "description": "Startup system for the Broken Roads V6 game system.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
