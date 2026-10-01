@@ -10,5 +10,5 @@
   "esmodules": [
     "v6-startup.js"
   ],
-  "download": "https://github.com/ZIGGYNAPALM/atomic-highway-foundry/releases/download/v0.1.0/atomic-highway-foundry-v0.1.0.zip"
+  "download": "https://github.com/ZIGGYNAPALM/atomic-highway-foundry/archive/refs/tags/v0.1.0.zip"
 }
