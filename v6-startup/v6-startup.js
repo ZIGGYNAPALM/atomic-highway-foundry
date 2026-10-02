@@ -15,23 +15,29 @@ Hooks.once("ready", async () => {
   globalThis.v6HealthDialObservers = new Map();
 
   function v6SetHealthNeedle(sheet, actor) {
-    const health = Number(actor.system.props.Health ?? 0);
-    const maxHealth = Number(actor.system.props.MAXHEALTH ?? 0);
+  const health = Number(actor.system.props.Health ?? 0);
+  const maxHealth = Number(actor.system.props.MAXHEALTH ?? 0);
 
-    if (maxHealth <= 0) return;
+  if (maxHealth <= 0) return;
 
-    const needle = sheet.querySelector(".v6-health-dial-needle img");
-    if (!needle) return;
+  const needle = sheet.querySelector(".v6-health-dial-needle img");
+  if (!needle) return;
 
-    const ratio = Math.max(0, Math.min(1, health / maxHealth));
-    const angle = -90 + (180 * ratio);
+  const ratio = Math.max(0, Math.min(1, health / maxHealth));
+  const angle = -90 + (180 * ratio);
 
-    needle.style.transform =
-      `translateX(-50%) rotate(${angle}deg)`;
+  needle.style.setProperty(
+    "transform",
+    `rotate(${angle}deg)`,
+    "important"
+  );
 
-    needle.style.transformOrigin = "50% 50%";
-  }
-
+  needle.style.setProperty(
+    "transform-origin",
+    "50% 50%",
+    "important"
+  );
+}
   function v6ArmHealthDial(sheet, actor) {
     v6SetHealthNeedle(sheet, actor);
 
