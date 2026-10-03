@@ -15,8 +15,11 @@ Hooks.once("ready", async () => {
   globalThis.v6HealthDialObservers = new Map();
 
   function v6SetHealthNeedle(sheet, actor) {
-  const health = Number(actor.system.props.Health ?? 0);
-  const maxHealth = Number(actor.system.props.MAXHEALTH ?? 0);
+    const props = actor?.system?.props;
+    if (!props) return;
+
+    const health = Number(props.Health ?? 0);
+    const maxHealth = Number(props.MAXHEALTH ?? 0);
 
   if (maxHealth <= 0) return;
 
