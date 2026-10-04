@@ -342,9 +342,7 @@ Hooks.once("ready", async () => {
         owner.name
       );
 
-      ui.notifications.info(
-        `V6 detected ${owner.name}'s Garage.`
-      );
+
     }
   }
 
@@ -608,9 +606,7 @@ Hooks.once("ready", async () => {
         owner.name
       );
 
-      ui.notifications.info(
-        `V6 detected ${owner.name}'s Stable.`
-      );
+
     }
   }
 
@@ -634,5 +630,5 @@ Hooks.once("ready", async () => {
      STARTUP COMPLETE
      ========================================= */
 
-  ui.notifications.info("V6 Startup — SORK");
+
 });
