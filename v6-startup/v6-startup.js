@@ -41,11 +41,45 @@ Hooks.once("ready", async () => {
     "important"
   );
 }
+
+function v6SetNonLethalBar(sheet, actor) {
+  const dmg = Number(actor.system.props.NONLETHALDMG ?? 0);
+  const maxHealth = Number(actor.system.props.MAXHEALTH ?? 0);
+
+  if (maxHealth <= 0) return;
+
+  const bar = sheet.querySelector('[data-key="NLBar"] img');
+  if (!bar) return;
+
+  const ratio = Math.max(0, Math.min(1, dmg / maxHealth));
+  const sweep = 180 * ratio;
+
+  const mask = `conic-gradient(
+    from 270deg at 50% 50%,
+    black 0deg ${sweep}deg,
+    transparent ${sweep}deg 360deg
+  )`;
+
+  bar.style.setProperty(
+    "-webkit-mask-image",
+    mask,
+    "important"
+  );
+
+  bar.style.setProperty(
+    "mask-image",
+    mask,
+    "important"
+  );
+}
+   
   function v6ArmHealthDial(sheet, actor) {
     v6SetHealthNeedle(sheet, actor);
-
+    v6SetNonLethalBar(sheet, actor);  
+     
     const observer = new MutationObserver(() => {
       v6SetHealthNeedle(sheet, actor);
+      v6SetNonLethalBar(sheet, actor);  
     });
 
     observer.observe(sheet, {
