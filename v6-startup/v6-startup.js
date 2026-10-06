@@ -72,6 +72,29 @@ function v6SetNonLethalBar(sheet, actor) {
     "important"
   );
 }
+
+async function v6OpenHealthDialog(actor) {
+  await foundry.applications.api.DialogV2.wait({
+    window: {
+      title: `${actor.name}: Health`
+    },
+    content: `
+      <div style="text-align:center;">
+        <h2>V6 HEALTH INTERFACE</h2>
+        <p>Health controls go here.</p>
+      </div>
+    `,
+    buttons: [
+      {
+        action: "close",
+        label: "Close"
+      }
+    ],
+    close: () => null
+  });
+}
+
+
    
   function v6ArmHealthDial(sheet, actor) {
     v6SetHealthNeedle(sheet, actor);
