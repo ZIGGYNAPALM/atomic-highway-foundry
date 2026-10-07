@@ -43,13 +43,13 @@ Hooks.once("ready", async () => {
 }
 
 function v6SetNonLethalBar(sheet, actor) {
-  const dmg = Number(actor.system.props.NONLETHALDMG ?? 0);
-  const maxHealth = Number(actor.system.props.MAXHEALTH ?? 0);
-
-  if (maxHealth <= 0) return;
-
   const bar = sheet.querySelector('[data-key="NLBar"] img');
   if (!bar) return;
+
+  const dmg = Number(actor?.system?.props?.NONLETHALDMG ?? 0);
+  const maxHealth = Number(actor?.system?.props?.MAXHEALTH ?? 0);
+
+  if (maxHealth <= 0) return;
 
   const ratio = Math.max(0, Math.min(1, dmg / maxHealth));
   const sweep = 180 * ratio;
@@ -72,7 +72,7 @@ function v6SetNonLethalBar(sheet, actor) {
     "important"
   );
 }
-
+   
 async function v6OpenHealthDialog(actor) {
   await foundry.applications.api.DialogV2.wait({
     window: {
