@@ -14,12 +14,22 @@ Hooks.once("ready", async () => {
 
   globalThis.v6HealthDialObservers = new Map();
 
-  function v6SetHealthNeedle(sheet, actor) {
-    const props = actor?.system?.props;
-    if (!props) return;
+function v6SetHealthNeedle(sheet, actor) {
+  const props = actor?.system?.props;
+  if (!props) return;
 
-    const health = Number(props.Health ?? 0);
-    const maxHealth = Number(props.MAXHEALTH ?? 0);
+  const health = Number(props.Health ?? 0);
+
+  let maxHealth = Number(props.MAXHEALTH ?? 0);
+
+  // Vehicles do not use MAXHEALTH.
+  // Vehicle Health = (Muscle + Toughness) × HMULT.
+  if (maxHealth <= 0) {
+    maxHealth =
+      (Number(props.Muscle ?? 0) +
+       Number(props.Toughness ?? 0)) *
+      Number(props.HMULT ?? 0);
+  }
 
   if (maxHealth <= 0) return;
 
