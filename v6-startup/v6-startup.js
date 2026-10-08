@@ -136,15 +136,16 @@ if (healthDial) {
 
      sheet.dataset.v6HealthDialArmed = "true";
      
-     // Beast Name: stack label above input
-const bname = sheet.querySelector('[data-key="bname"]');
+// Beast Name: stack label above input after CSB finishes rendering
+setTimeout(() => {
+    const bname = sheet.querySelector('[data-key="bname"]');
 
-if (bname) {
-    bname.style.setProperty("display", "flex", "important");
-    bname.style.setProperty("flex-direction", "column", "important");
-    bname.style.setProperty("align-items", "flex-start", "important");
-}
-    
+    if (bname) {
+        bname.style.setProperty("display", "flex", "important");
+        bname.style.setProperty("flex-direction", "column", "important");
+        bname.style.setProperty("align-items", "flex-start", "important");
+    }
+}, 500);  
 
     console.log(`V6 Health Dial armed: ${actor.name}`);
   }
