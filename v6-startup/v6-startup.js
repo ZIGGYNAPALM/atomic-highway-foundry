@@ -84,6 +84,12 @@ function v6SetNonLethalBar(sheet, actor) {
 }
    
 async function v6OpenHealthDialog(actor) {
+  const props = actor?.system?.props ?? {};
+
+  const health = Number(props.Health ?? 0);
+  const maxHealth = Number(props.MAXHEALTH ?? 0);
+  const nonLethal = Number(props.NONLETHALDMG ?? 0);
+
   await foundry.applications.api.DialogV2.wait({
     window: {
       title: `${actor.name}: Health`
@@ -91,7 +97,9 @@ async function v6OpenHealthDialog(actor) {
     content: `
       <div style="text-align:center;">
         <h2>V6 HEALTH INTERFACE</h2>
-        <p>Health controls go here.</p>
+
+        <p><strong>Health:</strong> ${health} / ${maxHealth}</p>
+        <p><strong>Non-Lethal Damage:</strong> ${nonLethal}</p>
       </div>
     `,
     buttons: [
@@ -103,7 +111,6 @@ async function v6OpenHealthDialog(actor) {
     close: () => null
   });
 }
-
 
    
   function v6ArmHealthDial(sheet, actor) {
