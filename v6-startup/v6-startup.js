@@ -462,10 +462,24 @@ if (healthDial) {
   };
 }
      
-    const observer = new MutationObserver(() => {
-      v6SetHealthNeedle(sheet, actor);
-      v6SetNonLethalBar(sheet, actor);  
-    });
+const observer = new MutationObserver(() => {
+  v6SetHealthNeedle(sheet, actor);
+  v6SetNonLethalBar(sheet, actor);
+
+  const currentHealthDial =
+    sheet.querySelector('[data-key="HEALTHDIAL"]');
+
+  if (currentHealthDial) {
+    currentHealthDial.style.cursor = "pointer";
+
+    currentHealthDial.onclick = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      v6OpenHealthDialog(actor);
+    };
+  }
+});
 
     observer.observe(sheet, {
       childList: true,
