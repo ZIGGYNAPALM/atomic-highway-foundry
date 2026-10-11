@@ -89,25 +89,358 @@ async function v6OpenHealthDialog(actor) {
   const health = Number(props.Health ?? 0);
   const maxHealth = Number(props.MAXHEALTH ?? 0);
   const nonLethal = Number(props.NONLETHALDMG ?? 0);
+  const protection = Number(props.PROTECTION ?? 0);
+
+  const persistentType = props.PERSISTENTTYPE ?? "blank";
+  const persistentDmg = Number(props.PERSISTENTDMG ?? 0);
+  const persistentDuration = Number(props.PERSISTENTDURATION ?? 0);
+
+  const vehicleTemplate = game.actors.getName("Vehicle");
+
+  const isVehicle =
+    vehicleTemplate &&
+    actor.system?.template === vehicleTemplate.id;
 
   await foundry.applications.api.DialogV2.wait({
     window: {
       title: `${actor.name}: Health`
     },
+
     content: `
       <div style="text-align:center;">
         <h2>V6 HEALTH INTERFACE</h2>
 
         <p><strong>Health:</strong> ${health} / ${maxHealth}</p>
         <p><strong>Non-Lethal Damage:</strong> ${nonLethal}</p>
+        <p><strong>Protection:</strong> ${protection}</p>
+
+        ${isVehicle && protection > 0 ? `
+          <p>
+            <strong>VEHICLE ARMOR:</strong>
+            Weapons with Base Damage ${protection} or less cause Cosmetic Damage Only.
+          </p>
+        ` : ""}
+
+        <hr>
+
+        <div style="margin: 12px 0;">
+          <label for="v6hi-damage"><strong>Amount:</strong></label>
+          <input
+            id="v6hi-damage"
+            name="damage"
+            type="number"
+            min="0"
+            value="0"
+            style="width: 80px; margin-left: 8px; text-align:center;"
+          >
+        </div>
+
+        <div style="margin: 12px 0;">
+          <strong>Damage Type:</strong>
+
+          <label style="margin-left: 10px;">
+            <input
+              type="radio"
+              name="damageType"
+              value="lethal"
+              checked
+            >
+            Lethal
+          </label>
+
+          <label style="margin-left: 10px;">
+            <input
+              type="radio"
+              name="damageType"
+              value="nonlethal"
+            >
+            Non-Lethal
+          </label>
+        </div>
       </div>
     `,
+
     buttons: [
+      {
+        action: "damage",
+        label: "APPLY DAMAGE",
+
+        callback: async (event, button, dialog) => {
+          const damageInput =
+            dialog.element.querySelector("#v6hi-damage");
+
+          const damage = Math.max(
+            0,
+            Number(damageInput?.value ?? 0)
+          );
+
+          const damageType =
+            dialog.element.querySelector(
+              'input[name="damageType"]:checked'
+            )?.value;
+
+          if (damageType === "nonlethal") {
+
+            if (isVehicle) {
+              ui.notifications.info(
+                `${actor.name}: Cosmetic damage only.`
+              );
+              return;
+            }
+
+            const currentNonLethal = Number(
+              actor.system?.props?.NONLETHALDMG ?? 0
+            );
+
+            const currentHealth = Number(
+              actor.system?.props?.Health ?? 0
+            );
+
+            const currentMaxHealth = Number(
+              actor.system?.props?.MAXHEALTH ?? 0
+            );
+
+            const characterTemplate =
+              game.actors.getName("Wrench");
+
+            const beastTemplate =
+              game.actors.getName("Beast");
+
+            const usesPersonalProtection =
+              (characterTemplate &&
+                actor.system?.template === characterTemplate.id) ||
+              (beastTemplate &&
+                actor.system?.template === beastTemplate.id);
+
+            const currentProtection =
+              usesPersonalProtection
+                ? Number(actor.system?.props?.PROTECTION ?? 0)
+                : 0;
+
+            const damageTaken =
+              Math.max(0, damage - currentProtection);
+
+            const totalNonLethal =
+              currentNonLethal + damageTaken;
+
+            const newNonLethal =
+              Math.min(totalNonLethal, currentMaxHealth);
+
+            const overflow =
+              Math.max(0, totalNonLethal - currentMaxHealth);
+
+            const newHealth =
+              Math.max(0, currentHealth - overflow);
+
+            await actor.update({
+              "system.props.NONLETHALDMG": newNonLethal,
+              "system.props.Health": newHealth
+            });
+
+            ui.notifications.info(
+              `${actor.name}: Incoming ${damage} — Protection ${currentProtection} — Non-Lethal Taken ${damageTaken}`
+            );
+
+          } else {
+
+            const currentHealth = Number(
+              actor.system?.props?.Health ?? 0
+            );
+
+            const characterTemplate =
+              game.actors.getName("Wrench");
+
+            const beastTemplate =
+              game.actors.getName("Beast");
+
+            const usesPersonalProtection =
+              (characterTemplate &&
+                actor.system?.template === characterTemplate.id) ||
+              (beastTemplate &&
+                actor.system?.template === beastTemplate.id);
+
+            const currentProtection =
+              (usesPersonalProtection || isVehicle)
+                ? Number(actor.system?.props?.PROTECTION ?? 0)
+                : 0;
+
+            const damageTaken =
+              Math.max(0, damage - currentProtection);
+
+            const newHealth =
+              Math.max(0, currentHealth - damageTaken);
+
+            await actor.update({
+              "system.props.Health": newHealth
+            });
+
+            ui.notifications.info(
+              `${actor.name}: Incoming ${damage} — Protection ${currentProtection} — Damage Taken ${damageTaken}`
+            );
+          }
+        }
+      },
+
+      {
+        action: "heal",
+        label: "HEAL",
+
+        callback: async (event, button, dialog) => {
+          const damageInput =
+            dialog.element.querySelector("#v6hi-damage");
+
+          const healing = Math.max(
+            0,
+            Number(damageInput?.value ?? 0)
+          );
+
+          const currentHealth = Number(
+            actor.system?.props?.Health ?? 0
+          );
+
+          const currentMaxHealth = Number(
+            actor.system?.props?.MAXHEALTH ?? 0
+          );
+
+          const newHealth =
+            Math.min(
+              currentMaxHealth,
+              currentHealth + healing
+            );
+
+          await actor.update({
+            "system.props.Health": newHealth
+          });
+        }
+      },
+
+      {
+        action: "continuing",
+        label: "CONTINUING DAMAGE",
+
+        callback: async () => {
+          await foundry.applications.api.DialogV2.wait({
+            window: {
+              title: `${actor.name}: Continuing Damage`
+            },
+
+            content: `
+              <div style="text-align:center;">
+                <h2>CONTINUING DAMAGE</h2>
+
+                <div style="margin: 12px 0;">
+                  <label><strong>Type:</strong></label>
+
+                  <select id="v6hi-persistent-type">
+                    <option
+                      value="fire"
+                      ${persistentType === "fire" ? "selected" : ""}
+                    >
+                      Fire
+                    </option>
+
+                    <option
+                      value="acid"
+                      ${persistentType === "acid" ? "selected" : ""}
+                    >
+                      Acid
+                    </option>
+                  </select>
+                </div>
+
+                <div style="margin: 12px 0;">
+                  <label><strong>Damage:</strong></label>
+
+                  <input
+                    id="v6hi-persistent-dmg"
+                    type="number"
+                    min="0"
+                    value="${persistentDmg}"
+                    style="width: 80px; text-align:center;"
+                  >
+                </div>
+
+                <div style="margin: 12px 0;">
+                  <label><strong>Duration:</strong></label>
+
+                  <input
+                    id="v6hi-persistent-duration"
+                    type="number"
+                    min="0"
+                    value="${persistentDuration}"
+                    style="width: 80px; text-align:center;"
+                  >
+                </div>
+              </div>
+            `,
+
+            buttons: [
+              {
+                action: "set",
+                label: "SET",
+
+                callback: async (event, button, dialog) => {
+                  const type =
+                    dialog.element.querySelector(
+                      "#v6hi-persistent-type"
+                    )?.value ?? "blank";
+
+                  const damage = Math.max(
+                    0,
+                    Number(
+                      dialog.element.querySelector(
+                        "#v6hi-persistent-dmg"
+                      )?.value ?? 0
+                    )
+                  );
+
+                  const duration = Math.max(
+                    0,
+                    Number(
+                      dialog.element.querySelector(
+                        "#v6hi-persistent-duration"
+                      )?.value ?? 0
+                    )
+                  );
+
+                  await actor.update({
+                    "system.props.PERSISTENTTYPE": type,
+                    "system.props.PERSISTENTDMG": damage,
+                    "system.props.PERSISTENTDURATION": duration
+                  });
+                }
+              },
+
+              {
+                action: "clear",
+                label: "CLEAR",
+
+                callback: async () => {
+                  await actor.update({
+                    "system.props.PERSISTENTTYPE": "blank",
+                    "system.props.PERSISTENTDMG": 0,
+                    "system.props.PERSISTENTDURATION": 0
+                  });
+                }
+              },
+
+              {
+                action: "close",
+                label: "Close"
+              }
+            ],
+
+            close: () => null
+          });
+        }
+      },
+
       {
         action: "close",
         label: "Close"
       }
     ],
+
     close: () => null
   });
 }
