@@ -285,33 +285,54 @@ async function v6OpenHealthDialog(actor) {
         action: "heal",
         label: "HEAL",
 
-        callback: async (event, button, dialog) => {
-          const damageInput =
-            dialog.element.querySelector("#v6hi-damage");
+callback: async (event, button, dialog) => {
+  const damageInput =
+    dialog.element.querySelector("#v6hi-damage");
 
-          const healing = Math.max(
-            0,
-            Number(damageInput?.value ?? 0)
-          );
+  const healing = Math.max(
+    0,
+    Number(damageInput?.value ?? 0)
+  );
 
-          const currentHealth = Number(
-            actor.system?.props?.Health ?? 0
-          );
+  const damageType =
+    dialog.element.querySelector(
+      'input[name="damageType"]:checked'
+    )?.value;
 
-          const currentMaxHealth = Number(
-            actor.system?.props?.MAXHEALTH ?? 0
-          );
+  if (damageType === "nonlethal") {
 
-          const newHealth =
-            Math.min(
-              currentMaxHealth,
-              currentHealth + healing
-            );
+    const currentNonLethal = Number(
+      actor.system?.props?.NONLETHALDMG ?? 0
+    );
 
-          await actor.update({
-            "system.props.Health": newHealth
-          });
-        }
+    const newNonLethal =
+      Math.max(0, currentNonLethal - healing);
+
+    await actor.update({
+      "system.props.NONLETHALDMG": newNonLethal
+    });
+
+  } else {
+
+    const currentHealth = Number(
+      actor.system?.props?.Health ?? 0
+    );
+
+    const currentMaxHealth = Number(
+      actor.system?.props?.MAXHEALTH ?? 0
+    );
+
+    const newHealth =
+      Math.min(
+        currentMaxHealth,
+        currentHealth + healing
+      );
+
+    await actor.update({
+      "system.props.Health": newHealth
+    });
+  }
+}
       },
 
       {
