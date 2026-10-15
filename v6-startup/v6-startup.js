@@ -94,7 +94,7 @@ function v6SetHealthNeedle(sheet, actor) {
     if (!drum) return;
 
     const digit = Number(value);
-    const offset = digit === 9 ? 32 : digit * -42;
+    const offset = digit === 9 ? 32 : digit * -30;
 
     if (digit === 0) {
       drum.style.removeProperty("background-position");
