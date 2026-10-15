@@ -52,6 +52,70 @@ function v6SetHealthNeedle(sheet, actor) {
   );
 }
 
+   function v6SetHealthOdometer(sheet, actor) {
+  const props = actor?.system?.props;
+  if (!props) return;
+
+  const health = Number(props.Health ?? 0);
+
+  let maxHealth = Number(props.MAXHEALTH ?? 0);
+
+  // Vehicles do not use MAXHEALTH.
+  // Vehicle Health = (Muscle + Toughness) × HMULT.
+  if (maxHealth <= 0) {
+    maxHealth =
+      (Number(props.Muscle ?? 0) +
+       Number(props.Toughness ?? 0)) *
+      Number(props.HMULT ?? 0);
+  }
+
+  const healthDigits =
+    String(Math.max(0, Math.min(999, Math.floor(health))))
+      .padStart(3, "0");
+
+  const maxDigits =
+    String(Math.max(0, Math.min(999, Math.floor(maxHealth))))
+      .padStart(3, "0");
+
+  const drums = {
+    health: [
+      sheet.querySelector('[data-key="HEALTHODO100"]'),
+      sheet.querySelector('[data-key="HEALTHODO10"]'),
+      sheet.querySelector('[data-key="HEALTHODO"]')
+    ],
+    max: [
+      sheet.querySelector('[data-key="HEALTHODO100MAX"]'),
+      sheet.querySelector('[data-key="HEALTHODO10MAX"]'),
+      sheet.querySelector('[data-key="HEALTHODOMAX"]')
+    ]
+  };
+
+  function setDigit(drum, value) {
+    if (!drum) return;
+
+    const digit = Number(value);
+    const offset = digit === 9 ? 32 : digit * -42;
+
+    if (digit === 0) {
+      drum.style.removeProperty("background-position");
+    } else {
+      drum.style.setProperty(
+        "background-position",
+        `center calc(50% + ${offset + 4}px)`,
+        "important"
+      );
+    }
+  }
+
+  healthDigits.split("").forEach(
+    (digit, index) => setDigit(drums.health[index], digit)
+  );
+
+  maxDigits.split("").forEach(
+    (digit, index) => setDigit(drums.max[index], digit)
+  );
+}
+   
 function v6SetNonLethalBar(sheet, actor) {
   const bar = sheet.querySelector('[data-key="NLBar"] img');
   if (!bar) return;
