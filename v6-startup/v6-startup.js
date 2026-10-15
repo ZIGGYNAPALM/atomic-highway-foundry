@@ -531,9 +531,10 @@ callback: async (event, button, dialog) => {
 }
 
    
-  function v6ArmHealthDial(sheet, actor) {
-    v6SetHealthNeedle(sheet, actor);
-    v6SetNonLethalBar(sheet, actor);  
+function v6ArmHealthDial(sheet, actor) {
+  v6SetHealthNeedle(sheet, actor);
+  v6SetHealthOdometer(sheet, actor);
+  v6SetNonLethalBar(sheet, actor);
      const healthDial = sheet.querySelector('[data-key="HEALTHDIAL"]');
 
 if (healthDial) {
