@@ -549,9 +549,9 @@ if (healthDial) {
 }
      
 const observer = new MutationObserver(() => {
-  v6SetHealthNeedle(sheet, actor);
-  v6SetNonLethalBar(sheet, actor);
-
+v6SetHealthNeedle(sheet, actor);
+v6SetHealthOdometer(sheet, actor);
+v6SetNonLethalBar(sheet, actor);
   const currentHealthDial =
     sheet.querySelector('[data-key="HEALTHDIAL"]');
 
