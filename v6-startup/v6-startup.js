@@ -762,13 +762,30 @@ setTimeout(() => {
 
       if (!actor) continue;
 
-      v6ArmSkillDrum(
-        sheet,
-        actor,
-        "DAthletics",
-        "Athletics",
-        "Athletics"
-      );
+          v6ArmSkillDrum(sheet, actor, "DAthletics",  "Athletics",  "Athletics");
+      v6ArmSkillDrum(sheet, actor, "DBoat",       "Boat",       "Boat");
+      v6ArmSkillDrum(sheet, actor, "DBrawl",      "Brawl",      "Brawl");
+      v6ArmSkillDrum(sheet, actor, "DCriminal",   "Criminal",   "Criminal");
+      v6ArmSkillDrum(sheet, actor, "DDrive",      "Drive",      "Drive");
+      v6ArmSkillDrum(sheet, actor, "DHeal",       "Heal",       "Heal");
+      v6ArmSkillDrum(sheet, actor, "DIntimidate", "Intimidate", "Intimidate");
+      v6ArmSkillDrum(sheet, actor, "DLore",       "Lore",       "Lore");
+      v6ArmSkillDrum(sheet, actor, "DMelee",      "Melee",      "Melee");
+      v6ArmSkillDrum(sheet, actor, "DNotice",     "Notice",     "Notice");
+      v6ArmSkillDrum(sheet, actor, "DPersuade",   "Persuade",   "Persuade");
+      v6ArmSkillDrum(sheet, actor, "DPilot",      "Pilot",      "Pilot");
+      v6ArmSkillDrum(sheet, actor, "DRide",       "Ride",       "Ride");
+      v6ArmSkillDrum(sheet, actor, "DScavenge",   "Scavenge",   "Scavenge");
+      v6ArmSkillDrum(sheet, actor, "DShoot",      "Shoot",      "Shoot");
+      v6ArmSkillDrum(sheet, actor, "DSleight",    "Sleight",    "Sleight");
+      v6ArmSkillDrum(sheet, actor, "DStealth",    "Stealth",    "Stealth");
+      v6ArmSkillDrum(sheet, actor, "DSurvive",    "Survive",    "Survive");
+      v6ArmSkillDrum(sheet, actor, "DTech",       "Tech",       "Tech");
+      v6ArmSkillDrum(sheet, actor, "DZoofinity",  "Zoofinity",  "Zoofinity");
+      v6ArmSkillDrum(sheet, actor, "DCustom1",    "Custom1",    "Custom 1");
+      v6ArmSkillDrum(sheet, actor, "DCustom2",    "Custom2",    "Custom 2");
+      v6ArmSkillDrum(sheet, actor, "DCustom3",    "Custom3",    "Custom 3");
+      v6ArmSkillDrum(sheet, actor, "DCustom4",    "Custom4",    "Custom 4");
 
       sheet.dataset.v6SkillDrumsArmed = "true";
     }
