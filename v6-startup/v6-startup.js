@@ -743,6 +743,22 @@ setTimeout(() => {
     });
   }
 
+     /* V6 SKILL DRUM TEST — ATHLETICS ONLY */
+  for (const sheet of document.querySelectorAll(".application")) {
+    const actor = game.actors.find(a =>
+      sheet.id?.includes(a.id)
+    );
+
+    if (!actor) continue;
+
+    v6ArmSkillDrum(
+      sheet,
+      actor,
+      "DAthletics",
+      "Athletics",
+      "Athletics"
+    );
+  }
 
   /* =========================================
      GARAGE
