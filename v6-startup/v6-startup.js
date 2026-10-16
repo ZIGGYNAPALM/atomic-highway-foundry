@@ -743,22 +743,51 @@ setTimeout(() => {
     });
   }
 
-     /* V6 SKILL DRUM TEST — ATHLETICS ONLY */
-  for (const sheet of document.querySelectorAll(".application")) {
-    const actor = game.actors.find(a =>
-      sheet.id?.includes(a.id)
-    );
+  /* V6 SKILL DRUM TEST — ATHLETICS ONLY */
 
-    if (!actor) continue;
+  function v6FindSkillDrums() {
+    const sheets = [...document.querySelectorAll(".application")];
 
-    v6ArmSkillDrum(
-      sheet,
-      actor,
-      "DAthletics",
-      "Athletics",
-      "Athletics"
-    );
+    for (const sheet of sheets) {
+      if (sheet.dataset.v6SkillDrumsArmed === "true") continue;
+
+      const athleticsDrum =
+        sheet.querySelector('[data-key="DAthletics"]');
+
+      if (!athleticsDrum) continue;
+
+      const actor = game.actors.find(a =>
+        sheet.id?.includes(a.id)
+      );
+
+      if (!actor) continue;
+
+      v6ArmSkillDrum(
+        sheet,
+        actor,
+        "DAthletics",
+        "Athletics",
+        "Athletics"
+      );
+
+      sheet.dataset.v6SkillDrumsArmed = "true";
+    }
   }
+
+  globalThis.v6SkillDrumStartupObserver =
+    new MutationObserver(() => {
+      v6FindSkillDrums();
+    });
+
+  globalThis.v6SkillDrumStartupObserver.observe(
+    document.body,
+    {
+      childList: true,
+      subtree: true
+    }
+  );
+
+  v6FindSkillDrums();
 
   /* =========================================
      GARAGE
