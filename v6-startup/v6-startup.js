@@ -624,6 +624,125 @@ setTimeout(() => {
 
   v6FindHealthDials();
 
+  /* =========================================
+     SKILL DRUMS
+     ========================================= */
+
+  function v6ArmSkillDrum(root, actor, drumKey, skillKey, skillName) {
+
+    function setDrum() {
+      const drum = root.querySelector(`[data-key="${drumKey}"]`);
+
+      if (!drum) return;
+
+      const skillValue = Number(actor.system?.props?.[skillKey] ?? 0);
+      const digit = Math.max(0, Math.min(9, Math.floor(skillValue)));
+      const offset = digit === 9 ? 32 : digit * -30;
+
+      if (digit === 0) {
+        drum.style.removeProperty("background-position");
+      } else {
+        drum.style.setProperty(
+          "background-position",
+          `center calc(50% + ${offset + 4}px)`,
+          "important"
+        );
+      }
+
+      drum.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const current = Number(actor.system?.props?.[skillKey] ?? 0);
+
+        const result = await foundry.applications.api.DialogV2.prompt({
+          window: {
+            title: skillName
+          },
+
+          content: `
+            <div style="padding: 8px;">
+              <label>${skillName}:</label>
+
+              <div style="
+                display: grid;
+                grid-template-columns: 50px 1fr 50px;
+                gap: 8px;
+                align-items: center;
+                margin-top: 6px;
+              ">
+                <button type="button" data-action="minus">−1</button>
+
+                <input
+                  type="number"
+                  name="skillValue"
+                  value="${current}"
+                  min="0"
+                  max="5"
+                  step="1"
+                  style="text-align: center;"
+                  autofocus
+                >
+
+                <button type="button" data-action="plus">+1</button>
+              </div>
+            </div>
+          `,
+
+          render: (event, dialog) => {
+            const input =
+              dialog.element.querySelector('[name="skillValue"]');
+
+            const minus =
+              dialog.element.querySelector('[data-action="minus"]');
+
+            const plus =
+              dialog.element.querySelector('[data-action="plus"]');
+
+            minus.onclick = () => {
+              const value = Number(input.value) || 0;
+              input.value = Math.max(0, value - 1);
+            };
+
+            plus.onclick = () => {
+              const value = Number(input.value) || 0;
+              input.value = Math.min(5, value + 1);
+            };
+          },
+
+          ok: {
+            label: "SET",
+            callback: (event, button, dialog) => {
+              return Number(
+                dialog.element.querySelector('[name="skillValue"]').value
+              );
+            }
+          }
+        });
+
+        if (result === null || result === undefined) return;
+
+        const value =
+          Math.max(0, Math.min(5, Math.floor(Number(result) || 0)));
+
+        await actor.update({
+          [`system.props.${skillKey}`]: value
+        });
+      };
+    }
+
+    setDrum();
+
+    const observer = new MutationObserver(() => {
+      setDrum();
+    });
+
+    observer.observe(root, {
+      childList: true,
+      subtree: true
+    });
+  }
+
 
   /* =========================================
      GARAGE
