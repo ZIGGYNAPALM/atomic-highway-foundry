@@ -806,6 +806,31 @@ setTimeout(() => {
 
   v6FindSkillDrums();
 
+     /* =========================================
+     V6 EDIT MODE
+     ========================================= */
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.matches('input[name="system.props.WeaponEdit"]')) return;
+
+    const editToggleId = event.target.id;
+
+    setTimeout(() => {
+      const editToggle = document.getElementById(editToggleId);
+      const sheet = editToggle?.closest("form");
+      const sheetActions =
+        sheet?.querySelector(".custom-system-sheet-actions");
+
+      if (!editToggle || !sheetActions) return;
+
+      sheetActions.style.setProperty(
+        "display",
+        editToggle.checked ? "" : "none",
+        "important"
+      );
+    }, 200);
+  }, true);
+   
   /* =========================================
      GARAGE
      ========================================= */
