@@ -830,6 +830,35 @@ setTimeout(() => {
       );
     }, 200);
   }, true);
+
+     globalThis.v6EditModeObserver =
+    new MutationObserver(() => {
+      const toggles = document.querySelectorAll(
+        'input[name="system.props.WeaponEdit"]'
+      );
+
+      for (const editToggle of toggles) {
+        const sheet = editToggle.closest("form");
+        const sheetActions =
+          sheet?.querySelector(".custom-system-sheet-actions");
+
+        if (!sheetActions) continue;
+
+        sheetActions.style.setProperty(
+          "display",
+          editToggle.checked ? "" : "none",
+          "important"
+        );
+      }
+    });
+
+  globalThis.v6EditModeObserver.observe(
+    document.body,
+    {
+      childList: true,
+      subtree: true
+    }
+  );
    
   /* =========================================
      GARAGE
