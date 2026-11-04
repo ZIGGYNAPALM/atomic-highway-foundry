@@ -7,6 +7,54 @@ Hooks.once("ready", async () => {
 
   console.log("V6 STARTUP — SORK");
 
+     /* =========================================
+     CHARACTER SHEET SIZE
+     ========================================= */
+
+  function v6SetCharacterSheetSize() {
+    const characterTemplate = game.actors.getName("Wrench");
+    if (!characterTemplate) return;
+
+    for (const app of foundry.applications.api.ApplicationV2.instances()) {
+      const sheet = app.element;
+
+      if (!(sheet instanceof HTMLElement)) continue;
+      if (sheet.dataset.v6CharacterSizeSet === "true") continue;
+
+      const actorId =
+        sheet.id?.replace("CharacterSheetV2-Actor-", "");
+
+      const actor = game.actors.get(actorId);
+
+      if (
+        !actor ||
+        actor.system?.template !== characterTemplate.id
+      ) continue;
+
+      app.setPosition({
+        width: 762,
+        height: 778
+      });
+
+      sheet.dataset.v6CharacterSizeSet = "true";
+    }
+  }
+
+  globalThis.v6CharacterSizeObserver =
+    new MutationObserver(() => {
+      v6SetCharacterSheetSize();
+    });
+
+  globalThis.v6CharacterSizeObserver.observe(
+    document.body,
+    {
+      childList: true,
+      subtree: true
+    }
+  );
+
+  v6SetCharacterSheetSize();
+   
 
   /* =========================================
      HEALTH DIAL
