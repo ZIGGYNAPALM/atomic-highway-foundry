@@ -77,9 +77,9 @@ function v6RefreshCustomSkillTape1() {
     if (!actor) continue;
 
     const customName =
-      String(
-        actor.system?.props?.CustomName1 ?? "CUSTOM"
-      ).trim() || "CUSTOM";
+  String(
+    actor.system?.props?.CustomName1 ?? ""
+  ).trim();
 
     button.dataset.v6CustomName = customName;
 
