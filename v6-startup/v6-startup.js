@@ -55,7 +55,57 @@ Hooks.once("ready", async () => {
 
   v6SetCharacterSheetSize();
    
+/* =========================================
+   CUSTOM SKILL TAPE — TEST #1
+   ========================================= */
 
+function v6RefreshCustomSkillTape1() {
+  const sheets = [...document.querySelectorAll(".application")];
+
+  for (const sheet of sheets) {
+    const button =
+      sheet.querySelector(
+        ".v6-custom-skill-1 > a.custom-system-rollable"
+      );
+
+    if (!button) continue;
+
+    const actor = game.actors.find(a =>
+      sheet.id?.includes(a.id)
+    );
+
+    if (!actor) continue;
+
+    const customName =
+      String(
+        actor.system?.props?.CustomName1 ?? "CUSTOM"
+      ).trim() || "CUSTOM";
+
+    button.dataset.v6CustomName = customName;
+
+    button.title =
+      `${customName} — Shift+click to rename`;
+  }
+}
+
+if (globalThis.v6CustomTapeObserver) {
+  globalThis.v6CustomTapeObserver.disconnect();
+}
+
+globalThis.v6CustomTapeObserver =
+  new MutationObserver(() => {
+    v6RefreshCustomSkillTape1();
+  });
+
+globalThis.v6CustomTapeObserver.observe(
+  document.body,
+  {
+    childList: true,
+    subtree: true
+  }
+);
+
+v6RefreshCustomSkillTape1();
   /* =========================================
      HEALTH DIAL
      ========================================= */
