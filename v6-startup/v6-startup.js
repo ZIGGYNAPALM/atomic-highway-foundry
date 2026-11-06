@@ -94,8 +94,9 @@ if (globalThis.v6CustomTapeObserver) {
 
 globalThis.v6CustomTapeObserver =
   new MutationObserver(() => {
-    v6RefreshCustomSkillTape1();
-  });
+  v6RefreshCustomSkillTape1();
+  v6RefreshRemainingCustomSkillTapes();
+});
 
 globalThis.v6CustomTapeObserver.observe(
   document.body,
@@ -105,7 +106,60 @@ globalThis.v6CustomTapeObserver.observe(
   }
 );
 
-v6RefreshCustomSkillTape1();
+
+   v6RefreshCustomSkillTape1();
+
+function v6RefreshRemainingCustomSkillTapes() {
+  const sheets = [...document.querySelectorAll(".application")];
+
+  const customSkills = [
+    {
+      selector: ".v6-custom-skill-2 > a.custom-system-rollable",
+      nameKey: "CustomName2"
+    },
+    {
+      selector: ".v6-custom-skill-3 > a.custom-system-rollable",
+      nameKey: "CustomName3"
+    },
+    {
+      selector: ".v6-custom-skill-4 > a.custom-system-rollable",
+      nameKey: "CustomName4"
+    }
+  ];
+
+  for (const sheet of sheets) {
+    const actor = game.actors.find(a =>
+      sheet.id?.includes(a.id)
+    );
+
+    if (!actor) continue;
+
+    for (const customSkill of customSkills) {
+      const button =
+        sheet.querySelector(customSkill.selector);
+
+      if (!button) continue;
+
+      const customName =
+        String(
+          actor.system?.props?.[customSkill.nameKey] ?? ""
+        ).trim();
+
+      button.dataset.v6CustomName = customName;
+
+      button.title =
+        customName
+          ? `${customName} — Shift+click to rename`
+          : "Shift+click to rename";
+    }
+  }
+}
+
+v6RefreshRemainingCustomSkillTapes();
+
+  /* =========================================
+     HEALTH DIAL
+     ========================================= */
   /* =========================================
      HEALTH DIAL
      ========================================= */
