@@ -266,6 +266,86 @@ function v6SetHealthNeedle(sheet, actor) {
   maxDigits.split("").forEach(
     (digit, index) => setDigit(drums.max[index], digit)
   );
+        /* =========================================
+     HEALTH ODOMETER — rolling ones digit TEST
+     ========================================= */
+
+  const previousHealthText =
+    sheet.dataset.v6LastHealth;
+
+  const previousHealth =
+    previousHealthText === undefined
+      ? health
+      : Number(previousHealthText);
+
+  if (previousHealth !== health) {
+
+    sheet._v6HealthRollFrom = previousHealth;
+    sheet._v6HealthRollTo = health;
+
+    clearTimeout(sheet._v6HealthRollTimer);
+
+    sheet._v6HealthRollTimer = setTimeout(() => {
+
+      const drum =
+        sheet.querySelector('[data-key="HEALTHODO"]');
+
+      if (!drum) return;
+
+      const fromDigit =
+        Math.abs(
+          Math.floor(sheet._v6HealthRollFrom)
+        ) % 10;
+
+      const toDigit =
+        Math.abs(
+          Math.floor(sheet._v6HealthRollTo)
+        ) % 10;
+
+      function yForDigit(digit) {
+        const offset =
+          digit === 9 ? 32 : digit * -30;
+
+        return `calc(50% + ${offset + 4}px)`;
+      }
+
+      drum.style.setProperty(
+        "transition",
+        "none",
+        "important"
+      );
+
+      drum.style.setProperty(
+        "background-position-y",
+        yForDigit(fromDigit),
+        "important"
+      );
+
+      void drum.offsetHeight;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+
+          drum.style.setProperty(
+            "transition",
+            "background-position-y 300ms ease-out",
+            "important"
+          );
+
+          drum.style.setProperty(
+            "background-position-y",
+            yForDigit(toDigit),
+            "important"
+          );
+
+        });
+      });
+
+    }, 50);
+  }
+
+  sheet.dataset.v6LastHealth =
+    String(health);
         const healthMultDrum =
     sheet.querySelector('[data-key="HMULT"] select');
 
