@@ -1542,7 +1542,45 @@ setTimeout(() => {
 
   await v6ArmStables();
 
+  /* =========================================
+     AUTO-PRONE AT ZERO HEALTH
+     ========================================= */
 
+  Hooks.on("updateActor", async (actor, changes) => {
+
+    const characterTemplate =
+      game.actors.getName("Wrench");
+
+    if (
+      !characterTemplate ||
+      actor.system?.template !== characterTemplate.id
+    ) return;
+
+    const healthWasChanged =
+      foundry.utils.hasProperty(
+        changes,
+        "system.props.Health"
+      ) ||
+      Object.prototype.hasOwnProperty.call(
+        changes,
+        "system.props.Health"
+      );
+
+    if (!healthWasChanged) return;
+
+    const health =
+      Number(actor.system?.props?.Health ?? 0);
+
+    const prone =
+      actor.system?.props?.PRONE === true;
+
+    if (health <= 0 && !prone) {
+      await actor.update({
+        "system.props.PRONE": true
+      });
+    }
+  });
+   
   /* =========================================
      STARTUP COMPLETE
      ========================================= */
