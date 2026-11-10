@@ -266,86 +266,166 @@ function v6SetHealthNeedle(sheet, actor) {
   maxDigits.split("").forEach(
     (digit, index) => setDigit(drums.max[index], digit)
   );
+
         /* =========================================
-     HEALTH ODOMETER — rolling ones digit TEST
+     HEALTH ODOMETER — rolling drums
      ========================================= */
 
   const previousHealthText =
     sheet.dataset.v6LastHealth;
+
+  const previousMaxHealthText =
+    sheet.dataset.v6LastMaxHealth;
 
   const previousHealth =
     previousHealthText === undefined
       ? health
       : Number(previousHealthText);
 
-  if (previousHealth !== health) {
+  const previousMaxHealth =
+    previousMaxHealthText === undefined
+      ? maxHealth
+      : Number(previousMaxHealthText);
 
-    sheet._v6HealthRollFrom = previousHealth;
-    sheet._v6HealthRollTo = health;
+  function v6OdoDigits(value) {
+    return String(
+      Math.max(
+        0,
+        Math.min(
+          999,
+          Math.floor(Number(value) || 0)
+        )
+      )
+    )
+      .padStart(3, "0")
+      .split("")
+      .map(Number);
+  }
 
-    clearTimeout(sheet._v6HealthRollTimer);
+  function v6OdoY(digit) {
+    const offset =
+      digit === 9 ? 32 : digit * -30;
 
-    sheet._v6HealthRollTimer = setTimeout(() => {
+    return `calc(50% + ${offset + 4}px)`;
+  }
 
-      const drum =
-        sheet.querySelector('[data-key="HEALTHODO"]');
+  function v6RollDrum(
+    drum,
+    fromDigit,
+    toDigit
+  ) {
+    if (!drum) return;
+    if (fromDigit === toDigit) return;
 
-      if (!drum) return;
+    drum.style.setProperty(
+      "transition",
+      "none",
+      "important"
+    );
 
-      const fromDigit =
-        Math.abs(
-          Math.floor(sheet._v6HealthRollFrom)
-        ) % 10;
+    drum.style.setProperty(
+      "background-position-y",
+      v6OdoY(fromDigit),
+      "important"
+    );
 
-      const toDigit =
-        Math.abs(
-          Math.floor(sheet._v6HealthRollTo)
-        ) % 10;
+    void drum.offsetHeight;
 
-      function yForDigit(digit) {
-        const offset =
-          digit === 9 ? 32 : digit * -30;
-
-        return `calc(50% + ${offset + 4}px)`;
-      }
-
-      drum.style.setProperty(
-        "transition",
-        "none",
-        "important"
-      );
-
-      drum.style.setProperty(
-        "background-position-y",
-        yForDigit(fromDigit),
-        "important"
-      );
-
-      void drum.offsetHeight;
-
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
 
-          drum.style.setProperty(
-            "transition",
-            "background-position-y 300ms ease-out",
-            "important"
-          );
+        drum.style.setProperty(
+          "transition",
+          "background-position-y 450ms ease-out",
+          "important"
+        );
 
-          drum.style.setProperty(
-            "background-position-y",
-            yForDigit(toDigit),
-            "important"
-          );
+        drum.style.setProperty(
+          "background-position-y",
+          v6OdoY(toDigit),
+          "important"
+        );
 
-        });
       });
+    });
+  }
 
-    }, 50);
+  if (
+    previousHealth !== health ||
+    previousMaxHealth !== maxHealth
+  ) {
+
+    clearTimeout(
+      sheet._v6HealthRollTimer
+    );
+
+    sheet._v6HealthRollTimer =
+      setTimeout(() => {
+
+        const oldHealthDigits =
+          v6OdoDigits(previousHealth);
+
+        const newHealthDigits =
+          v6OdoDigits(health);
+
+        const oldMaxDigits =
+          v6OdoDigits(previousMaxHealth);
+
+        const newMaxDigits =
+          v6OdoDigits(maxHealth);
+
+        const healthKeys = [
+          "HEALTHODO100",
+          "HEALTHODO10",
+          "HEALTHODO"
+        ];
+
+        const maxKeys = [
+          "HEALTHODO100MAX",
+          "HEALTHODO10MAX",
+          "HEALTHODOMAX"
+        ];
+
+        healthKeys.forEach(
+          (key, index) => {
+
+            const drum =
+              sheet.querySelector(
+                `[data-key="${key}"]`
+              );
+
+            v6RollDrum(
+              drum,
+              oldHealthDigits[index],
+              newHealthDigits[index]
+            );
+          }
+        );
+
+        maxKeys.forEach(
+          (key, index) => {
+
+            const drum =
+              sheet.querySelector(
+                `[data-key="${key}"]`
+              );
+
+            v6RollDrum(
+              drum,
+              oldMaxDigits[index],
+              newMaxDigits[index]
+            );
+          }
+        );
+
+      }, 50);
   }
 
   sheet.dataset.v6LastHealth =
     String(health);
+
+  sheet.dataset.v6LastMaxHealth =
+    String(maxHealth);
         const healthMultDrum =
     sheet.querySelector('[data-key="HMULT"] select');
 
