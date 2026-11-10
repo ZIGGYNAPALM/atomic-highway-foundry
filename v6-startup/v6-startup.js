@@ -266,6 +266,33 @@ function v6SetHealthNeedle(sheet, actor) {
   maxDigits.split("").forEach(
     (digit, index) => setDigit(drums.max[index], digit)
   );
+        const healthMultDrum =
+    sheet.querySelector('[data-key="HMULT"] select');
+
+  if (healthMultDrum) {
+    const digit = Math.max(
+      0,
+      Math.min(
+        9,
+        Math.floor(Number(props.HMULT ?? 0))
+      )
+    );
+
+    const offset =
+      digit === 9 ? 32 : digit * -30;
+
+    if (digit === 0) {
+      healthMultDrum.style.removeProperty(
+        "background-position"
+      );
+    } else {
+      healthMultDrum.style.setProperty(
+        "background-position",
+        `center calc(50% + ${offset + 4}px)`,
+        "important"
+      );
+    }
+  }
 }
    
 function v6SetNonLethalBar(sheet, actor) {
