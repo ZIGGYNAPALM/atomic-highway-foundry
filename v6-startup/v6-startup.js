@@ -395,6 +395,31 @@ function v6SetHealthNeedle(sheet, actor) {
               "important"
             );
           } else {
+            const wrapHeight = 302;
+
+            const wrappedTarget =
+              fromDigit === 9 && toDigit === 8
+                ? v6OdoOffset(toDigit) + 4 + wrapHeight
+                : v6OdoOffset(toDigit) + 4 - wrapHeight;
+
+            drum.style.setProperty(
+              "background-repeat",
+              "repeat-y",
+              "important"
+            );
+
+            drum.style.setProperty(
+              "transition",
+              `background-position-y ${V6_ODO_ROLL_MS}ms linear`,
+              "important"
+            );
+
+            drum.style.setProperty(
+              "background-position-y",
+              `calc(50% + ${wrappedTarget}px)`,
+              "important"
+            );
+
             setTimeout(() => {
               if (sheet._v6OdoToken !== token) return;
 
@@ -405,11 +430,17 @@ function v6SetHealthNeedle(sheet, actor) {
               );
 
               drum.style.setProperty(
+                "background-repeat",
+                "no-repeat",
+                "important"
+              );
+
+              drum.style.setProperty(
                 "background-position-y",
                 v6OdoY(toDigit),
                 "important"
               );
-            }, Math.floor(V6_ODO_ROLL_MS / 2));
+            }, V6_ODO_ROLL_MS);
           }
         });
       });
