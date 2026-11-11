@@ -267,14 +267,16 @@ function v6SetHealthNeedle(sheet, actor) {
     (digit, index) => setDigit(drums.max[index], digit)
   );
 
-        /* =========================================
-     HEALTH ODOMETER — rolling drums
+              /* =========================================
+     HEALTH ODOMETER — slow mechanical crawl
      ========================================= */
 
   const previousHealthText =
+    sheet.dataset.v6DisplayedHealth ??
     sheet.dataset.v6LastHealth;
 
   const previousMaxHealthText =
+    sheet.dataset.v6DisplayedMaxHealth ??
     sheet.dataset.v6LastMaxHealth;
 
   const previousHealth =
@@ -302,139 +304,233 @@ function v6SetHealthNeedle(sheet, actor) {
       .map(Number);
   }
 
-  function v6OdoY(digit) {
-    const offset =
-      digit === 9 ? 32 : digit * -30;
-
-    return `calc(50% + ${offset + 4}px)`;
+  function v6OdoOffset(digit) {
+    return digit === 9 ? 32 : digit * -30;
   }
 
-  function v6RollDrum(
-    drum,
-    fromDigit,
-    toDigit
+  function v6OdoY(digit) {
+    return `calc(50% + ${v6OdoOffset(digit) + 4}px)`;
+  }
+
+  const V6_ODO_ROLL_MS = 650;
+  const V6_ODO_STEP_MS = 800;
+  const V6_ODO_START_HOLD_MS = 200;
+
+  function v6SetOdoValue(keys, value) {
+    const digits = v6OdoDigits(value);
+
+    keys.forEach((key, index) => {
+      const drum =
+        sheet.querySelector(`[data-key="${key}"]`);
+
+      if (!drum) return;
+
+      drum.style.setProperty(
+        "transition",
+        "none",
+        "important"
+      );
+
+      drum.style.setProperty(
+        "background-position-y",
+        v6OdoY(digits[index]),
+        "important"
+      );
+    });
+  }
+
+  function v6RollOdoStep(
+    keys,
+    fromValue,
+    toValue,
+    token
   ) {
-    if (!drum) return;
-    if (fromDigit === toDigit) return;
+    const fromDigits = v6OdoDigits(fromValue);
+    const toDigits = v6OdoDigits(toValue);
 
-    drum.style.setProperty(
-      "transition",
-      "none",
-      "important"
-    );
+    keys.forEach((key, index) => {
+      const fromDigit = fromDigits[index];
+      const toDigit = toDigits[index];
 
-    drum.style.setProperty(
-      "background-position-y",
-      v6OdoY(fromDigit),
-      "important"
-    );
+      if (fromDigit === toDigit) return;
 
-    void drum.offsetHeight;
+      const drum =
+        sheet.querySelector(`[data-key="${key}"]`);
 
-    requestAnimationFrame(() => {
+      if (!drum) return;
+
+      const distance = Math.abs(
+        v6OdoOffset(toDigit) -
+        v6OdoOffset(fromDigit)
+      );
+
+      drum.style.setProperty(
+        "transition",
+        "none",
+        "important"
+      );
+
+      drum.style.setProperty(
+        "background-position-y",
+        v6OdoY(fromDigit),
+        "important"
+      );
+
+      void drum.offsetHeight;
+
       requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (sheet._v6OdoToken !== token) return;
 
-        const fromOffset =
-  fromDigit === 9 ? 32 : fromDigit * -30;
+          if (distance <= 45) {
+            drum.style.setProperty(
+              "transition",
+              `background-position-y ${V6_ODO_ROLL_MS}ms linear`,
+              "important"
+            );
 
-const toOffset =
-  toDigit === 9 ? 32 : toDigit * -30;
+            drum.style.setProperty(
+              "background-position-y",
+              v6OdoY(toDigit),
+              "important"
+            );
+          } else {
+            setTimeout(() => {
+              if (sheet._v6OdoToken !== token) return;
 
-const distance =
-  Math.abs(toOffset - fromOffset);
+              drum.style.setProperty(
+                "transition",
+                "none",
+                "important"
+              );
 
-const steps =
-  Math.max(1, Math.round(distance / 30));
-
-const duration =
-  Math.min(1200, 350 + ((steps - 1) * 130));
-
-drum.style.setProperty(
-  "transition",
-  `background-position-y ${duration}ms cubic-bezier(0.22, 0.75, 0.25, 1)`,
-  "important"
-);
-
-        drum.style.setProperty(
-          "background-position-y",
-          v6OdoY(toDigit),
-          "important"
-        );
-
+              drum.style.setProperty(
+                "background-position-y",
+                v6OdoY(toDigit),
+                "important"
+              );
+            }, Math.floor(V6_ODO_ROLL_MS / 2));
+          }
+        });
       });
     });
   }
 
-  if (
-    previousHealth !== health ||
-    previousMaxHealth !== maxHealth
+  function v6StartOdoCrawl(
+    keys,
+    fromValue,
+    toValue,
+    displayDatasetKey,
+    timerProperty,
+    token
   ) {
+    clearTimeout(sheet[timerProperty]);
 
-    clearTimeout(
-      sheet._v6HealthRollTimer
+    let displayed = Math.max(
+      0,
+      Math.min(
+        999,
+        Math.floor(Number(fromValue) || 0)
+      )
     );
 
-    sheet._v6HealthRollTimer =
-      setTimeout(() => {
+    const target = Math.max(
+      0,
+      Math.min(
+        999,
+        Math.floor(Number(toValue) || 0)
+      )
+    );
 
-        const oldHealthDigits =
-          v6OdoDigits(previousHealth);
+    v6SetOdoValue(keys, displayed);
+    sheet.dataset[displayDatasetKey] =
+      String(displayed);
 
-        const newHealthDigits =
-          v6OdoDigits(health);
+    if (displayed === target) return;
 
-        const oldMaxDigits =
-          v6OdoDigits(previousMaxHealth);
+    const direction =
+      target > displayed ? 1 : -1;
 
-        const newMaxDigits =
-          v6OdoDigits(maxHealth);
+    const step = () => {
+      if (sheet._v6OdoToken !== token) return;
 
-        const healthKeys = [
-          "HEALTHODO100",
-          "HEALTHODO10",
-          "HEALTHODO"
-        ];
+      const next =
+        displayed + direction;
 
-        const maxKeys = [
-          "HEALTHODO100MAX",
-          "HEALTHODO10MAX",
-          "HEALTHODOMAX"
-        ];
+      v6RollOdoStep(
+        keys,
+        displayed,
+        next,
+        token
+      );
 
-        healthKeys.forEach(
-          (key, index) => {
+      displayed = next;
 
-            const drum =
-              sheet.querySelector(
-                `[data-key="${key}"]`
-              );
+      sheet.dataset[displayDatasetKey] =
+        String(displayed);
 
-            v6RollDrum(
-              drum,
-              oldHealthDigits[index],
-              newHealthDigits[index]
-            );
-          }
-        );
+      if (displayed !== target) {
+        sheet[timerProperty] =
+          setTimeout(
+            step,
+            V6_ODO_STEP_MS
+          );
+      }
+    };
 
-        maxKeys.forEach(
-          (key, index) => {
-
-            const drum =
-              sheet.querySelector(
-                `[data-key="${key}"]`
-              );
-
-            v6RollDrum(
-              drum,
-              oldMaxDigits[index],
-              newMaxDigits[index]
-            );
-          }
-        );
-
-      }, 50);
+    sheet[timerProperty] =
+      setTimeout(
+        step,
+        V6_ODO_START_HOLD_MS
+      );
   }
+
+  const healthKeys = [
+    "HEALTHODO100",
+    "HEALTHODO10",
+    "HEALTHODO"
+  ];
+
+  const maxKeys = [
+    "HEALTHODO100MAX",
+    "HEALTHODO10MAX",
+    "HEALTHODOMAX"
+  ];
+
+  sheet._v6OdoToken =
+    (sheet._v6OdoToken ?? 0) + 1;
+
+  const odoToken =
+    sheet._v6OdoToken;
+
+  clearTimeout(
+    sheet._v6HealthRollTimer
+  );
+
+  sheet._v6HealthRollTimer =
+    setTimeout(() => {
+      if (
+        sheet._v6OdoToken !== odoToken
+      ) return;
+
+      v6StartOdoCrawl(
+        healthKeys,
+        previousHealth,
+        health,
+        "v6DisplayedHealth",
+        "_v6HealthCrawlTimer",
+        odoToken
+      );
+
+      v6StartOdoCrawl(
+        maxKeys,
+        previousMaxHealth,
+        maxHealth,
+        "v6DisplayedMaxHealth",
+        "_v6MaxHealthCrawlTimer",
+        odoToken
+      );
+    }, 50);
 
   sheet.dataset.v6LastHealth =
     String(health);
