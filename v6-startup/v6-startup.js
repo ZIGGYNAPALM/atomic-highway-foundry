@@ -334,11 +334,26 @@ function v6SetHealthNeedle(sheet, actor) {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
 
-        drum.style.setProperty(
-          "transition",
-          "background-position-y 450ms ease-out",
-          "important"
-        );
+        const fromOffset =
+  fromDigit === 9 ? 32 : fromDigit * -30;
+
+const toOffset =
+  toDigit === 9 ? 32 : toDigit * -30;
+
+const distance =
+  Math.abs(toOffset - fromOffset);
+
+const steps =
+  Math.max(1, Math.round(distance / 30));
+
+const duration =
+  Math.min(1200, 350 + ((steps - 1) * 130));
+
+drum.style.setProperty(
+  "transition",
+  `background-position-y ${duration}ms cubic-bezier(0.22, 0.75, 0.25, 1)`,
+  "important"
+);
 
         drum.style.setProperty(
           "background-position-y",
