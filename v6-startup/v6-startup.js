@@ -201,13 +201,66 @@ function v6SetHealthNeedle(sheet, actor) {
   const targetAngle =
     -90 + (180 * ratio);
 
-  const previousAngleText =
-    sheet.dataset.v6HealthNeedleAngle;
+  const displayedAngleText =
+    sheet.dataset.v6HealthNeedleDisplayedAngle;
 
-  const previousAngle =
-    previousAngleText === undefined
-      ? targetAngle
-      : Number(previousAngleText);
+  /*
+   * First render:
+   * place needle directly at correct position.
+   */
+  if (displayedAngleText === undefined) {
+    needle.style.setProperty(
+      "transform-origin",
+      "50% 50%",
+      "important"
+    );
+
+    needle.style.setProperty(
+      "transition",
+      "none",
+      "important"
+    );
+
+    needle.style.setProperty(
+      "transform",
+      `rotate(${targetAngle}deg)`,
+      "important"
+    );
+
+    sheet.dataset.v6HealthNeedleDisplayedAngle =
+      String(targetAngle);
+
+    sheet.dataset.v6HealthNeedleTargetAngle =
+      String(targetAngle);
+
+    return;
+  }
+
+  const displayedAngle =
+    Number(displayedAngleText);
+
+  const oldTargetAngle =
+    Number(
+      sheet.dataset.v6HealthNeedleTargetAngle ??
+      displayedAngle
+    );
+
+  /*
+   * New Health value:
+   * create a fresh animation token.
+   */
+  if (
+    Math.abs(oldTargetAngle - targetAngle) > 0.01
+  ) {
+    sheet._v6HealthNeedleToken =
+      (sheet._v6HealthNeedleToken ?? 0) + 1;
+
+    sheet.dataset.v6HealthNeedleTargetAngle =
+      String(targetAngle);
+  }
+
+  const token =
+    sheet._v6HealthNeedleToken ?? 0;
 
   needle.style.setProperty(
     "transform-origin",
@@ -215,6 +268,10 @@ function v6SetHealthNeedle(sheet, actor) {
     "important"
   );
 
+  /*
+   * Force replacement needle to begin at
+   * the last position actually displayed.
+   */
   needle.style.setProperty(
     "transition",
     "none",
@@ -223,7 +280,7 @@ function v6SetHealthNeedle(sheet, actor) {
 
   needle.style.setProperty(
     "transform",
-    `rotate(${previousAngle}deg)`,
+    `rotate(${displayedAngle}deg)`,
     "important"
   );
 
@@ -231,6 +288,10 @@ function v6SetHealthNeedle(sheet, actor) {
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+
+      if (
+        sheet._v6HealthNeedleToken !== token
+      ) return;
 
       needle.style.setProperty(
         "transition",
@@ -247,8 +308,25 @@ function v6SetHealthNeedle(sheet, actor) {
     });
   });
 
-  sheet.dataset.v6HealthNeedleAngle =
-    String(targetAngle);
+  clearTimeout(
+    sheet._v6HealthNeedleTimer
+  );
+
+  /*
+   * Only declare the needle "arrived"
+   * after the physical sweep is finished.
+   */
+  sheet._v6HealthNeedleTimer =
+    setTimeout(() => {
+
+      if (
+        sheet._v6HealthNeedleToken !== token
+      ) return;
+
+      sheet.dataset.v6HealthNeedleDisplayedAngle =
+        String(targetAngle);
+
+    }, 1450);
 }
 
    function v6SetHealthOdometer(sheet, actor) {
