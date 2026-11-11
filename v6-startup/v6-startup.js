@@ -185,23 +185,70 @@ function v6SetHealthNeedle(sheet, actor) {
 
   if (maxHealth <= 0) return;
 
-  const needle = sheet.querySelector(".v6-health-dial-needle img");
+  const needle =
+    sheet.querySelector(
+      ".v6-health-dial-needle img"
+    );
+
   if (!needle) return;
 
-  const ratio = Math.max(0, Math.min(1, health / maxHealth));
-  const angle = -90 + (180 * ratio);
+  const ratio =
+    Math.max(
+      0,
+      Math.min(1, health / maxHealth)
+    );
 
-  needle.style.setProperty(
-    "transform",
-    `rotate(${angle}deg)`,
-    "important"
-  );
+  const targetAngle =
+    -90 + (180 * ratio);
+
+  const previousAngleText =
+    sheet.dataset.v6HealthNeedleAngle;
+
+  const previousAngle =
+    previousAngleText === undefined
+      ? targetAngle
+      : Number(previousAngleText);
 
   needle.style.setProperty(
     "transform-origin",
     "50% 50%",
     "important"
   );
+
+  needle.style.setProperty(
+    "transition",
+    "none",
+    "important"
+  );
+
+  needle.style.setProperty(
+    "transform",
+    `rotate(${previousAngle}deg)`,
+    "important"
+  );
+
+  void needle.offsetHeight;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+
+      needle.style.setProperty(
+        "transition",
+        "transform 1400ms cubic-bezier(0.20, 0.70, 0.25, 1)",
+        "important"
+      );
+
+      needle.style.setProperty(
+        "transform",
+        `rotate(${targetAngle}deg)`,
+        "important"
+      );
+
+    });
+  });
+
+  sheet.dataset.v6HealthNeedleAngle =
+    String(targetAngle);
 }
 
    function v6SetHealthOdometer(sheet, actor) {
