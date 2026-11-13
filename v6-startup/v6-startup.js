@@ -712,10 +712,17 @@ function v6SetHealthNeedle(sheet, actor) {
 
   sheet.dataset.v6LastMaxHealth =
     String(maxHealth);
+      const vehicleTemplate =
+  game.actors.getName("Vehicle");
+
+const isVehicle =
+  vehicleTemplate &&
+  actor.system?.template === vehicleTemplate.id;
+
         const healthMultDrum =
     sheet.querySelector('[data-key="HMULT"] select');
 
-  if (healthMultDrum) {
+  if (healthMultDrum && !isVehicle) {
     const digit = Math.max(
       0,
       Math.min(
