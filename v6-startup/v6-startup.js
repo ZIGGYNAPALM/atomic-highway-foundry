@@ -11,34 +11,43 @@ Hooks.once("ready", async () => {
      CHARACTER SHEET SIZE
      ========================================= */
 
-  function v6SetCharacterSheetSize() {
-    const characterTemplate = game.actors.getName("Wrench");
-    if (!characterTemplate) return;
+ function v6SetCharacterSheetSize() {
+  const sheetTemplates = [
+    game.actors.getName("Character"),
+    game.actors.getName("Vehicle"),
+    game.actors.getName("Beast")
+  ].filter(Boolean);
 
-    for (const app of foundry.applications.api.ApplicationV2.instances()) {
-      const sheet = app.element;
+  if (sheetTemplates.length === 0) return;
 
-      if (!(sheet instanceof HTMLElement)) continue;
-      if (sheet.dataset.v6CharacterSizeSet === "true") continue;
+  const templateIds = new Set(
+    sheetTemplates.map(template => template.id)
+  );
 
-      const actorId =
-        sheet.id?.replace("CharacterSheetV2-Actor-", "");
+  for (const app of foundry.applications.api.ApplicationV2.instances()) {
+    const sheet = app.element;
 
-      const actor = game.actors.get(actorId);
+    if (!(sheet instanceof HTMLElement)) continue;
+    if (sheet.dataset.v6CharacterSizeSet === "true") continue;
 
-      if (
-        !actor ||
-        actor.system?.template !== characterTemplate.id
-      ) continue;
+    const actorId =
+      sheet.id?.replace("CharacterSheetV2-Actor-", "");
 
-      app.setPosition({
-        width: 762,
-        height: 778
-      });
+    const actor = game.actors.get(actorId);
 
-      sheet.dataset.v6CharacterSizeSet = "true";
-    }
+    if (
+      !actor ||
+      !templateIds.has(actor.system?.template)
+    ) continue;
+
+    app.setPosition({
+      width: 762,
+      height: 778
+    });
+
+    sheet.dataset.v6CharacterSizeSet = "true";
   }
+}
 
   globalThis.v6CharacterSizeObserver =
     new MutationObserver(() => {
@@ -871,7 +880,7 @@ async function v6OpenHealthDialog(actor) {
             );
 
             const characterTemplate =
-              game.actors.getName("Wrench");
+              game.actors.getName("Character");
 
             const beastTemplate =
               game.actors.getName("Beast");
@@ -918,7 +927,7 @@ async function v6OpenHealthDialog(actor) {
             );
 
             const characterTemplate =
-              game.actors.getName("Wrench");
+              game.actors.getName("Character");
 
             const beastTemplate =
               game.actors.getName("Beast");
@@ -2003,7 +2012,7 @@ setTimeout(() => {
   Hooks.on("updateActor", async (actor, changes) => {
 
     const characterTemplate =
-      game.actors.getName("Wrench");
+      game.actors.getName("Character");
 
     if (
       !characterTemplate ||
