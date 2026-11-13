@@ -28,7 +28,17 @@ Hooks.once("ready", async () => {
     const sheet = app.element;
 
     if (!(sheet instanceof HTMLElement)) continue;
-    if (sheet.dataset.v6CharacterSizeSet === "true") continue;
+
+const currentWidth =
+  Math.round(sheet.getBoundingClientRect().width);
+
+const currentHeight =
+  Math.round(sheet.getBoundingClientRect().height);
+
+if (
+  currentWidth === 762 &&
+  currentHeight === 778
+) continue;
 
     const actorId =
       sheet.id?.replace("CharacterSheetV2-Actor-", "");
