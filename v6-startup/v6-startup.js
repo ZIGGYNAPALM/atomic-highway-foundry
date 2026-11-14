@@ -1164,6 +1164,16 @@ callback: async (event, button, dialog) => {
 
    
 function v6ArmHealthDial(sheet, actor) {
+   const vehicleTemplate =
+  game.actors.getName("Vehicle");
+
+const isVehicleSheet =
+  vehicleTemplate &&
+  actor.system?.template === vehicleTemplate.id;
+
+if (isVehicleSheet) {
+  sheet.classList.add("v6-vehicle-sheet");
+}
   v6SetHealthNeedle(sheet, actor);
   v6SetHealthOdometer(sheet, actor);
   v6SetNonLethalBar(sheet, actor);
