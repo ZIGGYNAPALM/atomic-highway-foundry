@@ -2032,44 +2032,83 @@ setTimeout(() => {
 
   await v6ArmStables();
 
-  /* =========================================
-     AUTO-PRONE AT ZERO HEALTH
-     ========================================= */
+ /* =========================================
+   AUTO-PRONE / VEHICLE WRECKED AT ZERO HEALTH
+   ========================================= */
 
-  Hooks.on("updateActor", async (actor, changes) => {
+Hooks.on("updateActor", async (actor, changes) => {
 
-    const characterTemplate =
-      game.actors.getName("Character");
+  const characterTemplate =
+  game.actors.getName("Character");
 
-    if (
-      !characterTemplate ||
-      actor.system?.template !== characterTemplate.id
-    ) return;
+  const vehicleTemplate =
+    game.actors.getName("Vehicle");
 
-    const healthWasChanged =
-      foundry.utils.hasProperty(
-        changes,
-        "system.props.Health"
-      ) ||
-      Object.prototype.hasOwnProperty.call(
-        changes,
-        "system.props.Health"
-      );
+  const isCharacter =
+    characterTemplate &&
+    actor.system?.template === characterTemplate.id;
 
-    if (!healthWasChanged) return;
+  const isVehicle =
+    vehicleTemplate &&
+    actor.system?.template === vehicleTemplate.id;
 
-    const health =
-      Number(actor.system?.props?.Health ?? 0);
+  if (!isCharacter && !isVehicle) return;
 
-    const prone =
-      actor.system?.props?.PRONE === true;
+
+  const healthWasChanged =
+    foundry.utils.hasProperty(
+      changes,
+      "system.props.Health"
+    ) ||
+    Object.prototype.hasOwnProperty.call(
+      changes,
+      "system.props.Health"
+    );
+
+  if (!healthWasChanged) return;
+
+
+  const health =
+    Number(actor.system?.props?.Health ?? 0);
+
+  const prone =
+    actor.system?.props?.PRONE === true;
+
+
+  /* CHARACTER:
+     Same behavior as before.
+     At 0 Health, automatically go prone.
+  */
+
+  if (isCharacter) {
 
     if (health <= 0 && !prone) {
       await actor.update({
         "system.props.PRONE": true
       });
     }
-  });
+
+    return;
+  }
+
+
+  /* VEHICLE:
+     PRONE means WRECKED / UPSIDE DOWN.
+     It is entirely controlled by Health.
+  */
+
+  if (isVehicle) {
+
+    const shouldBeWrecked =
+      health <= 0;
+
+    if (prone !== shouldBeWrecked) {
+      await actor.update({
+        "system.props.PRONE": shouldBeWrecked
+      });
+    }
+  }
+});
    
   /* =========================================
      STARTUP COMPLETE
