@@ -1175,12 +1175,12 @@ if (isVehicleSheet) {
   sheet.classList.add("v6-vehicle-sheet");
 
   const healthMult =
-    sheet.querySelector('[data-key="HMULT"] input');
+  sheet.querySelector('[data-key="HMULT"]');
 
-  if (healthMult) {
-    healthMult.title =
-      "Atomic Highway uses Health Mult 15 by default. Change only if using a house rule.";
-  }
+if (healthMult) {
+  healthMult.title =
+    "Atomic Highway uses Health Mult 15 by default. Change only if using a house rule.";
+}
 }
   v6SetHealthNeedle(sheet, actor);
   v6SetHealthOdometer(sheet, actor);
