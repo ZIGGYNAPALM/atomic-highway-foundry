@@ -2124,7 +2124,7 @@ Hooks.on("updateActor", async (actor, changes) => {
 
 
 });
-wdwd
+
 /* =========================================================
    V6 VEHICLE WEAPONS — LINKED WEAPON DROPDOWN
    LNKDWPN lists only other Vehicle Weapons on same vehicle
