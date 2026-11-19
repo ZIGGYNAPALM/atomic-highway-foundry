@@ -2165,21 +2165,34 @@ Hooks.on("renderApplicationV2", (app, element) => {
         item.system?.props?.LNKDWPN ?? "";
 
     const weapons =
-        vehicle.items
-            .filter(other => {
+    vehicle.items
+        .filter(other => {
 
-                // Don't link weapon to itself
-                if (other.id === item.id) return false;
+            // Don't link weapon to itself
+            if (other.id === item.id) return false;
 
-                const props =
-                    other.system?.props ?? {};
+            const props =
+                other.system?.props ?? {};
 
-                // Only items using our Vehicle Weapon fields
-                return (
-                    Object.hasOwn(props, "LINKD") ||
-                    Object.hasOwn(props, "LNKDWPN")
-                );
-            })
+            const partnerId =
+                props.LNKDWPN ?? "";
+
+            /*
+             * Exclude weapons already paired
+             * with some third weapon.
+             */
+            if (
+                partnerId &&
+                partnerId !== item.id
+            ) {
+                return false;
+            }
+
+            return (
+                Object.hasOwn(props, "LINKD") ||
+                Object.hasOwn(props, "LNKDWPN")
+            );
+        })
             .sort(
                 (a, b) =>
                     a.name.localeCompare(b.name)
@@ -2222,19 +2235,107 @@ Hooks.on("renderApplicationV2", (app, element) => {
         select.value = currentValue;
     }
 
-    if (!select.dataset.v6LinkedBound) {
+if (!select.dataset.v6LinkedBound) {
 
-        select.dataset.v6LinkedBound = "true";
+    select.dataset.v6LinkedBound = "true";
 
-        select.addEventListener(
-            "change",
-            async event => {
+    select.addEventListener(
+        "change",
+        async event => {
 
-                await item.update({
-                    "system.props.LNKDWPN":
-                        event.currentTarget.value
-                });
+            const newPartnerId =
+                event.currentTarget.value;
+
+            const oldPartnerId =
+                item.system?.props?.LNKDWPN ?? "";
+
+            if (newPartnerId === oldPartnerId) return;
+
+            const oldPartner =
+                oldPartnerId
+                    ? vehicle.items.get(oldPartnerId)
+                    : null;
+
+            const newPartner =
+                newPartnerId
+                    ? vehicle.items.get(newPartnerId)
+                    : null;
+
+            /*
+             * Don't allow a weapon that is already
+             * linked to somebody else.
+             */
+            if (newPartner) {
+
+                const theirPartnerId =
+                    newPartner.system?.props?.LNKDWPN ?? "";
+
+                if (
+                    theirPartnerId &&
+                    theirPartnerId !== item.id
+                ) {
+                    const theirPartner =
+                        vehicle.items.get(theirPartnerId);
+
+                    ui.notifications.warn(
+                        `${newPartner.name} is already linked to `
+                        + `${theirPartner?.name ?? "another weapon"}.`
+                    );
+
+                    event.currentTarget.value =
+                        oldPartnerId;
+
+                    return;
+                }
             }
-        );
-    }
+
+            const updates = [];
+
+            /*
+             * Break the old pair from both ends.
+             */
+            if (
+                oldPartner &&
+                oldPartner.system?.props?.LNKDWPN === item.id
+            ) {
+                updates.push(
+                    oldPartner.update({
+                        "system.props.LNKDWPN": "",
+                        "system.props.LINKD": false
+                    })
+                );
+            }
+
+            /*
+             * Update this weapon.
+             */
+            updates.push(
+                item.update({
+                    "system.props.LNKDWPN":
+                        newPartnerId,
+
+                    "system.props.LINKD":
+                        Boolean(newPartnerId)
+                })
+            );
+
+            /*
+             * Create reciprocal link.
+             */
+            if (newPartner) {
+                updates.push(
+                    newPartner.update({
+                        "system.props.LNKDWPN":
+                            item.id,
+
+                        "system.props.LINKD":
+                            true
+                    })
+                );
+            }
+
+            await Promise.all(updates);
+        }
+    );
+}
 });
