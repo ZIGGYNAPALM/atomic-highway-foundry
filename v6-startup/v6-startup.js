@@ -2346,3 +2346,167 @@ if (!select.dataset.v6LinkedBound) {
     );
 }
 });
+
+/* =========================================================
+   V6 VEHICLE WEAPONS — LINKED PAIR DISPLAY
+   ========================================================= */
+
+Hooks.on("renderApplicationV2", (app, element) => {
+
+    const actor =
+        app.actor ?? app.document;
+
+    if (
+        !actor ||
+        actor.documentName !== "Actor"
+    ) return;
+
+    const vehicleTemplate =
+        game.actors.getName("Vehicle");
+
+    if (
+        !vehicleTemplate ||
+        actor.system?.template !== vehicleTemplate.id
+    ) return;
+
+    const root =
+        element instanceof HTMLElement
+            ? element
+            : app.element;
+
+    if (!root) return;
+
+    const weaponDrop =
+        root.querySelector(
+            '[data-key="WEAPONSDROP"]'
+        );
+
+    if (!weaponDrop) return;
+
+    const rows =
+        Array.from(
+            weaponDrop.querySelectorAll(
+                "tr.custom-system-dynamicRow"
+            )
+        );
+
+    if (rows.length === 0) return;
+
+
+    /*
+     * Find which embedded Item belongs to each
+     * CSB weapon-list row.
+     */
+    const rowsByItemId =
+        new Map();
+
+    for (const row of rows) {
+
+        row.classList.remove(
+            "v6-linked-secondary"
+        );
+
+        row.querySelectorAll(
+            ".v6-linked-branch"
+        ).forEach(branch => branch.remove());
+
+        const link =
+            row.querySelector(".content-link");
+
+        if (!link) continue;
+
+        const uuid =
+            link.dataset?.uuid ??
+            link.getAttribute("data-uuid") ??
+            "";
+
+        let itemId = "";
+
+        if (uuid) {
+            itemId =
+                uuid.split(".").at(-1);
+        }
+
+        if (!itemId) {
+            itemId =
+                link.dataset?.id ??
+                row.dataset?.itemId ??
+                "";
+        }
+
+        if (!itemId) continue;
+
+        rowsByItemId.set(
+            itemId,
+            row
+        );
+    }
+
+
+    /*
+     * Put each secondary weapon directly beneath
+     * its primary weapon.
+     */
+    for (const primary of actor.items) {
+
+        const isPrimary =
+            primary.getFlag(
+                "world",
+                "v6LinkedPrimary"
+            ) === true;
+
+        if (!isPrimary) continue;
+
+        const secondaryId =
+            primary.system?.props?.LNKDWPN ?? "";
+
+        if (!secondaryId) continue;
+
+        const primaryRow =
+            rowsByItemId.get(primary.id);
+
+        const secondaryRow =
+            rowsByItemId.get(secondaryId);
+
+        if (
+            !primaryRow ||
+            !secondaryRow
+        ) continue;
+
+        /*
+         * Move the existing row.
+         * We are NOT creating a duplicate.
+         */
+        primaryRow.insertAdjacentElement(
+            "afterend",
+            secondaryRow
+        );
+
+        secondaryRow.classList.add(
+            "v6-linked-secondary"
+        );
+
+        const secondaryLink =
+            secondaryRow.querySelector(
+                ".content-link"
+            );
+
+        if (!secondaryLink) continue;
+
+        const branch =
+            document.createElement("span");
+
+        branch.classList.add(
+            "v6-linked-branch"
+        );
+
+        branch.textContent = "└ ";
+
+        branch.style.marginRight = "2px";
+
+        secondaryLink.insertAdjacentElement(
+            "beforebegin",
+            branch
+        );
+    }
+});
