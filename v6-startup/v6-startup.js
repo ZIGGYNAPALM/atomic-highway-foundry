@@ -2300,9 +2300,10 @@ if (!select.dataset.v6LinkedBound) {
             ) {
                 updates.push(
                     oldPartner.update({
-                        "system.props.LNKDWPN": "",
-                        "system.props.LINKD": false
-                    })
+                      "system.props.LNKDWPN": "",
+                      "system.props.LINKD": false,
+                      "flags.world.v6LinkedPrimary": false
+                     })
                 );
             }
 
@@ -2311,12 +2312,15 @@ if (!select.dataset.v6LinkedBound) {
              */
             updates.push(
                 item.update({
-                    "system.props.LNKDWPN":
-                        newPartnerId,
+                   "system.props.LNKDWPN":
+                       newPartnerId,
 
-                    "system.props.LINKD":
-                        Boolean(newPartnerId)
-                })
+                   "system.props.LINKD":
+                       Boolean(newPartnerId),
+
+                   "flags.world.v6LinkedPrimary":
+                       Boolean(newPartnerId)
+               })
             );
 
             /*
@@ -2325,12 +2329,15 @@ if (!select.dataset.v6LinkedBound) {
             if (newPartner) {
                 updates.push(
                     newPartner.update({
-                        "system.props.LNKDWPN":
-                            item.id,
+                      "system.props.LNKDWPN":
+                          item.id,
 
-                        "system.props.LINKD":
-                            true
-                    })
+                      "system.props.LINKD":
+                          true,
+
+                      "flags.world.v6LinkedPrimary":
+                          false
+                  })
                 );
             }
 
