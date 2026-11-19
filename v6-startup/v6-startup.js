@@ -2127,73 +2127,86 @@ Hooks.on("updateActor", async (actor, changes) => {
 
 /* =========================================================
    V6 VEHICLE WEAPONS — LINKED WEAPON DROPDOWN
-   LNKDWPN lists only other Vehicle Weapons on same vehicle
    ========================================================= */
 
-Hooks.on("renderItemSheet", (app, html) => {
+Hooks.on("renderApplicationV2", (app, element) => {
 
     const item = app.item ?? app.document;
-    if (!item) return;
+
+    if (!item || item.documentName !== "Item") return;
 
     const root =
-        html instanceof HTMLElement
-            ? html
-            : html?.[0];
+        element instanceof HTMLElement
+            ? element
+            : app.element;
 
     if (!root) return;
 
-    const select = root.querySelector(
-        '[data-key="LNKDWPN"] select'
-    );
+    const select =
+        root.querySelector('[data-key="LNKDWPN"] select');
 
-    // Not a Vehicle Weapon sheet
+    // Not one of our Vehicle Weapon sheets
     if (!select) return;
+
+    console.log("V6 LINKED WEAPON SHEET FOUND:", item.name);
 
     const vehicle = item.parent;
 
-    // Only works on an owned weapon mounted on a vehicle
+    console.log("V6 LINK OWNER:", vehicle);
+
     if (!vehicle || vehicle.documentName !== "Actor") {
         select.innerHTML =
             '<option value="">— Mount weapon on vehicle first —</option>';
+
         return;
     }
 
     const currentValue =
         item.system?.props?.LNKDWPN ?? "";
 
-    /*
-     * Find sibling Vehicle Weapons.
-     *
-     * LINKD / LNKDWPN only exist on our Vehicle Weapon Template,
-     * so they make a convenient filter.
-     */
-    const weapons = vehicle.items
-        .filter(other => {
+    const weapons =
+        vehicle.items
+            .filter(other => {
 
-            // Never link a weapon to itself
-            if (other.id === item.id) return false;
+                // Don't link weapon to itself
+                if (other.id === item.id) return false;
 
-            const props = other.system?.props ?? {};
+                const props =
+                    other.system?.props ?? {};
 
-            // Only Vehicle Weapon Template items
-            return (
-                Object.hasOwn(props, "LINKD") ||
-                Object.hasOwn(props, "LNKDWPN")
+                // Only items using our Vehicle Weapon fields
+                return (
+                    Object.hasOwn(props, "LINKD") ||
+                    Object.hasOwn(props, "LNKDWPN")
+                );
+            })
+            .sort(
+                (a, b) =>
+                    a.name.localeCompare(b.name)
             );
-        })
-        .sort((a, b) => a.name.localeCompare(b.name));
 
-    // Rebuild dropdown
-    select.innerHTML = "";
+    console.log(
+        "V6 LINKABLE WEAPONS:",
+        weapons.map(w => ({
+            name: w.name,
+            id: w.id
+        }))
+    );
 
-    const none = document.createElement("option");
+    select.replaceChildren();
+
+    const none =
+        document.createElement("option");
+
     none.value = "";
     none.textContent = "— None —";
+
     select.appendChild(none);
 
     for (const weapon of weapons) {
 
-        const option = document.createElement("option");
+        const option =
+            document.createElement("option");
 
         option.value = weapon.id;
         option.textContent = weapon.name;
@@ -2201,25 +2214,27 @@ Hooks.on("renderItemSheet", (app, html) => {
         select.appendChild(option);
     }
 
-    // Restore existing selection
-    if (weapons.some(w => w.id === currentValue)) {
+    if (
+        weapons.some(
+            weapon => weapon.id === currentValue
+        )
+    ) {
         select.value = currentValue;
     }
 
-    /*
-     * Explicitly save selection.
-     * CSB may already do this, but this guarantees the ID
-     * is stored in system.props.LNKDWPN.
-     */
     if (!select.dataset.v6LinkedBound) {
 
         select.dataset.v6LinkedBound = "true";
 
-        select.addEventListener("change", async event => {
+        select.addEventListener(
+            "change",
+            async event => {
 
-            await item.update({
-                "system.props.LNKDWPN": event.currentTarget.value
-            });
-        });
+                await item.update({
+                    "system.props.LNKDWPN":
+                        event.currentTarget.value
+                });
+            }
+        );
     }
 });
