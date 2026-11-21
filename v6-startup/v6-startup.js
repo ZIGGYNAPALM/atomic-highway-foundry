@@ -2080,10 +2080,16 @@ function v6ArmBeastAttack1() {
         "ATTACK 1"
       ).trim() || "ATTACK 1";
 
-    button.textContent = attackName;
+    if (button.textContent !== attackName) {
+        button.textContent = attackName;
+      }
 
-    button.title =
-      `${attackName} — Shift+click to configure`;
+   const attackTitle =
+        `${attackName} — Shift+click to configure`;
+
+   if (button.title !== attackTitle) {
+        button.title = attackTitle;
+      }
 
     /*
      * Do not attach another click handler to the
@@ -2418,11 +2424,16 @@ function v6ArmBeastAttack1() {
          * immediately instead of waiting for
          * the sheet to rerender.
          */
-        button.textContent =
-          result.name;
+        if (button.textContent !== result.name) {
+              button.textContent = result.name;
+            }
 
-        button.title =
-          `${result.name} — Shift+click to configure`;
+         const savedTitle =
+           `${result.name} — Shift+click to configure`;
+
+         if (button.title !== savedTitle) {
+              button.title = savedTitle;
+            }
 
         return;
       }
