@@ -3214,7 +3214,82 @@ Hooks.on("updateActor", async (actor, changes) => {
     }
   }
 });
-   
+
+	/* =========================================
+   V6 AUTO POP-OUT — ACTOR SHEETS TEST
+   ========================================= */
+
+Hooks.on("renderApplicationV2", async (app, element) => {
+
+  const actor =
+    app.actor ??
+    app.document;
+
+  if (
+    !actor ||
+    actor.documentName !== "Actor"
+  ) return;
+
+  const characterTemplate =
+    game.actors.getName("Character");
+
+  const vehicleTemplate =
+    game.actors.getName("Vehicle");
+
+  const beastTemplate =
+    game.actors.getName("Beast");
+
+  const validTemplateIds =
+    new Set(
+      [
+        characterTemplate?.id,
+        vehicleTemplate?.id,
+        beastTemplate?.id
+      ].filter(Boolean)
+    );
+
+  if (
+    !validTemplateIds.has(
+      actor.system?.template
+    )
+  ) return;
+
+  /*
+   * Don't detach the same application repeatedly
+   * every time CSB re-renders it.
+   */
+  if (app._v6AutoDetached) return;
+
+  /*
+   * ApplicationV2 only.
+   */
+  if (
+    typeof app.detachWindow !== "function"
+  ) return;
+
+  app._v6AutoDetached = true;
+
+  try {
+
+    await app.detachWindow();
+
+    console.log(
+      "V6 AUTO POP-OUT:",
+      actor.name
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "V6 AUTO POP-OUT FAILED:",
+      actor.name,
+      error
+    );
+
+    app._v6AutoDetached = false;
+  }
+});
+	
   /* =========================================
      STARTUP COMPLETE
      ========================================= */
