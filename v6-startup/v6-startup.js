@@ -2040,6 +2040,538 @@ setTimeout(() => {
 
   await v6ArmStables();
 
+   /* =========================================
+   V6 BEAST — ATTACK 1
+   Shift+click = configure
+   Click = roll
+   ========================================= */
+
+function v6ArmBeastAttack1() {
+
+  const sheets =
+    [...document.querySelectorAll(".application")];
+
+  for (const sheet of sheets) {
+
+    const button =
+      sheet.querySelector(
+        '[data-key="BATTACK1"] .custom-system-label-label'
+      );
+
+    if (!button) continue;
+
+    const actor =
+      game.actors.find(a =>
+        sheet.id?.includes(a.id)
+      );
+
+    if (!actor) continue;
+
+    /*
+     * Refresh visible button name every time this
+     * function sees the sheet.
+     */
+    const props =
+      actor.system?.props ?? {};
+
+    const attackName =
+      String(
+        props.BATTACK1NAME ??
+        "ATTACK 1"
+      ).trim() || "ATTACK 1";
+
+    button.textContent = attackName;
+
+    button.title =
+      `${attackName} — Shift+click to configure`;
+
+    /*
+     * Do not attach another click handler to the
+     * same rendered button.
+     */
+    if (
+      button.dataset.v6Attack1Armed === "true"
+    ) continue;
+
+    button.dataset.v6Attack1Armed = "true";
+
+    button.style.cursor = "pointer";
+
+    button.onclick = async event => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const currentProps =
+        actor.system?.props ?? {};
+
+
+      /* =====================================
+         SHIFT+CLICK — CONFIGURE ATTACK
+         ===================================== */
+
+      if (event.shiftKey) {
+
+        const currentName =
+          String(
+            currentProps.BATTACK1NAME ??
+            "ATTACK 1"
+          ).trim() || "ATTACK 1";
+
+        const currentAttribute =
+          String(
+            currentProps.BATTACK1ATTRIBUTE ??
+            "Nimbleness"
+          );
+
+        const currentSkill =
+          String(
+            currentProps.BATTACK1SKILL ??
+            "Brawl"
+          );
+
+        const currentDamage =
+          Number(
+            currentProps.BATTACK1DAMAGE ??
+            1
+          );
+
+        /*
+         * RAW beasts overwhelmingly inflict
+         * lethal damage, so undefined defaults
+         * to Lethal.
+         */
+        const currentLethal =
+          currentProps.BATTACK1LETHAL !== false &&
+          currentProps.BATTACK1LETHAL !== "false";
+
+
+        /* -----------------------------
+           ATTRIBUTE DROPDOWN
+           ----------------------------- */
+
+        const attributes = [
+          "Muscle",
+          "Understanding",
+          "Tenacity",
+          "Appeal",
+          "Nimbleness",
+          "Toughness",
+          "Senses"
+        ];
+
+        const attributeOptions =
+          attributes.map(attribute => `
+            <option
+              value="${attribute}"
+              ${
+                attribute === currentAttribute
+                  ? "selected"
+                  : ""
+              }
+            >
+              ${attribute}
+            </option>
+          `).join("");
+
+
+        /* -----------------------------
+           BEAST SKILL DROPDOWN
+           ----------------------------- */
+
+        const skills = [
+          {
+            key: "Athletics",
+            label: "Athletics"
+          },
+          {
+            key: "Brawl",
+            label: "Brawl"
+          },
+          {
+            key: "Intimidate",
+            label: "Intimidate"
+          },
+          {
+            key: "Notice",
+            label: "Notice"
+          },
+          {
+            key: "Stealth",
+            label: "Stealth"
+          },
+
+          /*
+           * Custom skills use their actual
+           * displayed names when available.
+           */
+          {
+            key: "Custom1",
+            label:
+              String(
+                currentProps.CustomName1 ??
+                "Custom 1"
+              ).trim() || "Custom 1"
+          },
+          {
+            key: "Custom2",
+            label:
+              String(
+                currentProps.CustomName2 ??
+                "Custom 2"
+              ).trim() || "Custom 2"
+          },
+          {
+            key: "Custom3",
+            label:
+              String(
+                currentProps.CustomName3 ??
+                "Custom 3"
+              ).trim() || "Custom 3"
+          },
+          {
+            key: "Custom4",
+            label:
+              String(
+                currentProps.CustomName4 ??
+                "Custom 4"
+              ).trim() || "Custom 4"
+          }
+        ];
+
+        const skillOptions =
+          skills.map(skill => `
+            <option
+              value="${skill.key}"
+              ${
+                skill.key === currentSkill
+                  ? "selected"
+                  : ""
+              }
+            >
+              ${foundry.utils.escapeHTML(
+                skill.label
+              )}
+            </option>
+          `).join("");
+
+
+        const result =
+          await foundry.applications.api.DialogV2.prompt({
+
+            window: {
+              title:
+                `${actor.name}: Configure Attack 1`
+            },
+
+            content: `
+              <div
+                style="
+                  display:grid;
+                  grid-template-columns:100px 1fr;
+                  gap:10px;
+                  align-items:center;
+                  padding:10px;
+                "
+              >
+
+                <label>
+                  <strong>Name:</strong>
+                </label>
+
+                <input
+                  type="text"
+                  name="attackName"
+                  value="${foundry.utils.escapeHTML(
+                    currentName
+                  )}"
+                >
+
+
+                <label>
+                  <strong>Attribute:</strong>
+                </label>
+
+                <select name="attackAttribute">
+                  ${attributeOptions}
+                </select>
+
+
+                <label>
+                  <strong>Skill:</strong>
+                </label>
+
+                <select name="attackSkill">
+                  ${skillOptions}
+                </select>
+
+
+                <label>
+                  <strong>Damage:</strong>
+                </label>
+
+                <input
+                  type="number"
+                  name="attackDamage"
+                  min="0"
+                  step="1"
+                  value="${currentDamage}"
+                  style="
+                    width:70px;
+                    text-align:center;
+                  "
+                >
+
+
+                <label>
+                  <strong>Lethal:</strong>
+                </label>
+
+                <input
+                  type="checkbox"
+                  name="attackLethal"
+                  ${currentLethal ? "checked" : ""}
+                >
+
+              </div>
+            `,
+
+            ok: {
+              label: "SAVE",
+
+              callback:
+                (event, dialogButton, dialog) => {
+
+                  const root =
+                    dialog.element;
+
+                  return {
+
+                    name:
+                      root.querySelector(
+                        '[name="attackName"]'
+                      )?.value.trim() ||
+                      "ATTACK 1",
+
+                    attribute:
+                      root.querySelector(
+                        '[name="attackAttribute"]'
+                      )?.value ||
+                      "Nimbleness",
+
+                    skill:
+                      root.querySelector(
+                        '[name="attackSkill"]'
+                      )?.value ||
+                      "Brawl",
+
+                    damage:
+                      Number(
+                        root.querySelector(
+                          '[name="attackDamage"]'
+                        )?.value ?? 0
+                      ),
+
+                    lethal:
+                      root.querySelector(
+                        '[name="attackLethal"]'
+                      )?.checked === true
+                  };
+                }
+            }
+          });
+
+
+        if (!result) return;
+
+
+        const savedDamage =
+          Math.max(
+            0,
+            Math.floor(
+              Number(result.damage) || 0
+            )
+          );
+
+
+        await actor.update({
+
+          "system.props.BATTACK1NAME":
+            result.name,
+
+          "system.props.BATTACK1ATTRIBUTE":
+            result.attribute,
+
+          "system.props.BATTACK1SKILL":
+            result.skill,
+
+          "system.props.BATTACK1DAMAGE":
+            savedDamage,
+
+          "system.props.BATTACK1LETHAL":
+            result.lethal
+        });
+
+
+        /*
+         * Change the visible steel button
+         * immediately instead of waiting for
+         * the sheet to rerender.
+         */
+        button.textContent =
+          result.name;
+
+        button.title =
+          `${result.name} — Shift+click to configure`;
+
+        return;
+      }
+
+
+      /* =====================================
+         NORMAL CLICK — ROLL ATTACK
+         ===================================== */
+
+      const name =
+        String(
+          currentProps.BATTACK1NAME ??
+          "ATTACK 1"
+        ).trim() || "ATTACK 1";
+
+
+      const attributeKey =
+        String(
+          currentProps.BATTACK1ATTRIBUTE ??
+          "Nimbleness"
+        );
+
+
+      const skillKey =
+        String(
+          currentProps.BATTACK1SKILL ??
+          "Brawl"
+        );
+
+
+      const baseDamage =
+        Math.max(
+          0,
+          Number(
+            currentProps.BATTACK1DAMAGE ??
+            1
+          )
+        );
+
+
+      const lethal =
+        currentProps.BATTACK1LETHAL !== false &&
+        currentProps.BATTACK1LETHAL !== "false";
+
+
+      const damageType =
+        lethal
+          ? "L"
+          : "NL";
+
+
+      /*
+       * Attribute supplies the dice pool.
+       */
+      let pool =
+        Number(
+          currentProps[attributeKey] ??
+          0
+        );
+
+
+      /*
+       * Attribute values above 5 become
+       * automatic Successes, matching the
+       * existing V6 Roll Engine behavior.
+       */
+      let autoSuccesses = 0;
+
+      if (pool > 5) {
+        autoSuccesses =
+          pool - 5;
+
+        pool = 5;
+      }
+
+
+      /*
+       * Selected Beast skill supplies
+       * Skill Points.
+       */
+      const skill =
+        Number(
+          currentProps[skillKey] ??
+          0
+        );
+
+
+      const rollEngine =
+        game.macros.getName(
+          "V6 Roll Engine"
+        );
+
+
+      if (!rollEngine) {
+        ui.notifications.error(
+          "V6 Roll Engine macro not found."
+        );
+
+        return;
+      }
+
+
+      await rollEngine.execute({
+
+        pool,
+        autoSuccesses,
+
+        name,
+
+        skill,
+
+        props: currentProps,
+
+        actorId: actor.id,
+
+        baseDamage,
+
+        damageType
+      });
+    };
+  }
+}
+
+
+/* =========================================
+   V6 BEAST — ATTACK 1 STARTUP OBSERVER
+   ========================================= */
+
+if (globalThis.v6BeastAttack1Observer) {
+  globalThis.v6BeastAttack1Observer.disconnect();
+}
+
+globalThis.v6BeastAttack1Observer =
+  new MutationObserver(() => {
+
+    v6ArmBeastAttack1();
+
+  });
+
+globalThis.v6BeastAttack1Observer.observe(
+  document.body,
+  {
+    childList: true,
+    subtree: true
+  }
+);
+
+v6ArmBeastAttack1();
+   
  /* =========================================
    AUTO-PRONE / VEHICLE WRECKED AT ZERO HEALTH
    ========================================= */
