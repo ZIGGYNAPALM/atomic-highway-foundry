@@ -2084,22 +2084,11 @@ function v6ArmBeastAttack1() {
         button.textContent = attackName;
       }
 
-   const editToggle =
-  	sheet.querySelector(
-    	'input[name="system.props.WeaponEdit"]'
-  	);
+   const attackTitle = "";
 
-   const isEditMode =
-  	editToggle?.checked === true;
-
-   const attackTitle =
-  	isEditMode
-    	? `${attackName} — Shift+click to configure`
-    	: "";
-
-   if (button.title !== attackTitle) {
-     	button.title = attackTitle;
-	}
+if (button.title !== attackTitle) {
+  button.title = attackTitle;
+}
 
     /*
      * Do not attach another click handler to the
@@ -2644,23 +2633,11 @@ function v6ArmBeastAttack2() {
         button.textContent = attackName;
       }
 
-   const editToggle =
-  	sheet.querySelector(
-    	'input[name="system.props.WeaponEdit"]'
-  	);
-
-   const isEditMode =
-  	editToggle?.checked === true;
-
-   const attackTitle =
-  	isEditMode
-    	? `${attackName} — Shift+click to configure`
-    	: "";
+   const attackTitle = "";
 
 if (button.title !== attackTitle) {
   button.title = attackTitle;
 }
-
     /*
      * Do not attach another click handler to the
      * same rendered button.
