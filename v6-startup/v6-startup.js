@@ -3491,15 +3491,32 @@ function v6ArmEmbeddedItemLinks(app) {
       try {
 
         await app.renderChild(
-          itemSheet,
-          {
-            force: true
-          }
-        );
+  itemSheet,
+  {
+    force: true
+  }
+);
 
-        v6InstallDetachButton(
-          itemSheet
-        );
+/*
+ * Restore the Item sheet's own default dimensions
+ * instead of inheriting the Actor sheet size.
+ */
+const itemPosition =
+  itemSheet.options?.position ?? {};
+
+itemSheet.setPosition({
+  width:
+    itemPosition.width ??
+    itemSheet.position?.width,
+
+  height:
+    itemPosition.height ??
+    itemSheet.position?.height
+});
+
+v6InstallDetachButton(
+  itemSheet
+);
 
       } catch (error) {
 
