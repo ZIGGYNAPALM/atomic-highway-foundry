@@ -156,7 +156,11 @@ function v6InstallDetachButton(app) {
   for (const app of foundry.applications.api.ApplicationV2.instances()) {
     const sheet = app.element;
 
-    if (!(sheet instanceof HTMLElement)) continue;
+    if (
+  !sheet ||
+  typeof sheet.querySelector !== "function" ||
+  typeof sheet.getBoundingClientRect !== "function"
+) continue;
 
 const currentWidth =
   Math.round(sheet.getBoundingClientRect().width);
@@ -208,7 +212,8 @@ if (
    ========================================= */
 
 function v6RefreshCustomSkillTape1() {
-  const sheets = [...document.querySelectorAll(".application")];
+  const sheets =
+  v6GetApplicationRoots();
 
   for (const sheet of sheets) {
     const button =
@@ -258,7 +263,8 @@ globalThis.v6CustomTapeObserver.observe(
    v6RefreshCustomSkillTape1();
 
 function v6RefreshRemainingCustomSkillTapes() {
-  const sheets = [...document.querySelectorAll(".application")];
+  const sheets =
+  v6GetApplicationRoots();
 
   const customSkills = [
     {
@@ -1370,7 +1376,8 @@ setTimeout(() => {
   }
 
   function v6FindHealthDials() {
-    const sheets = [...document.querySelectorAll(".application")];
+    const sheets =
+  v6GetApplicationRoots();
 
     for (const sheet of sheets) {
       if (sheet.dataset.v6HealthDialArmed === "true") continue;
@@ -1525,7 +1532,8 @@ setTimeout(() => {
   /* V6 SKILL DRUM TEST — ATHLETICS ONLY */
 
   function v6FindSkillDrums() {
-    const sheets = [...document.querySelectorAll(".application")];
+    const sheets =
+  v6GetApplicationRoots();
 
     for (const sheet of sheets) {
       if (sheet.dataset.v6SkillDrumsArmed === "true") continue;
@@ -1598,8 +1606,10 @@ setTimeout(() => {
   async function v6ArmGarages() {
 
     const garages =
-      document.querySelectorAll(".v6-garage-drop");
-
+  v6GetApplicationRoots()
+    .flatMap(root =>
+      [...root.querySelectorAll(".v6-garage-drop")]
+    );
     for (const garage of garages) {
 
       if (globalThis.v6ArmedGarages.has(garage)) continue;
@@ -1607,7 +1617,8 @@ setTimeout(() => {
       globalThis.v6ArmedGarages.add(garage);
 
       const sheet = garage.closest(".application");
-
+		const doc =
+  			garage.ownerDocument;
       console.log("V6 NEW GARAGE DETECTED:", {
         garage,
         sheet,
@@ -1650,7 +1661,7 @@ setTimeout(() => {
         garage.querySelector(".v6-garage-list");
 
       if (!list) {
-        list = document.createElement("div");
+        list = doc.createElement("div");
         list.classList.add("v6-garage-list");
 
         originalLabel.insertAdjacentElement(
@@ -1673,7 +1684,7 @@ setTimeout(() => {
           if (!vehicle) continue;
 
           const entry =
-            document.createElement("div");
+            doc.createElement("div");
 
           entry.classList.add("v6-garage-entry");
 
@@ -1683,7 +1694,7 @@ setTimeout(() => {
           entry.style.gap = "6px";
 
           const vehicleLink =
-            document.createElement("span");
+            doc.createElement("span");
 
           vehicleLink.textContent = vehicle.name;
           vehicleLink.style.cursor = "pointer";
@@ -1757,7 +1768,7 @@ setTimeout(() => {
   vehicleSheet?.render(true);
 };
           const removeButton =
-            document.createElement("span");
+            doc.createElement("span");
 
           removeButton.textContent = "×";
           removeButton.title =
@@ -1919,7 +1930,10 @@ setTimeout(() => {
   async function v6ArmStables() {
 
     const stables =
-      document.querySelectorAll(".v6-stable-drop");
+  v6GetApplicationRoots()
+    .flatMap(root =>
+      [...root.querySelectorAll(".v6-stable-drop")]
+    );
 
     for (const stable of stables) {
 
@@ -1928,7 +1942,8 @@ setTimeout(() => {
       globalThis.v6ArmedStables.add(stable);
 
       const sheet = stable.closest(".application");
-
+		const doc =
+  			stable.ownerDocument;
       console.log("V6 NEW STABLE DETECTED:", {
         stable,
         sheet,
@@ -1974,7 +1989,7 @@ setTimeout(() => {
         stable.querySelector(".v6-stable-list");
 
       if (!list) {
-        list = document.createElement("div");
+        list = doc.createElement("div");
         list.classList.add("v6-stable-list");
 
         originalLabel.insertAdjacentElement(
@@ -1997,7 +2012,7 @@ setTimeout(() => {
           if (!beast) continue;
 
           const entry =
-            document.createElement("div");
+          doc.createElement("div");
 
           entry.classList.add("v6-stable-entry");
 
@@ -2007,7 +2022,7 @@ setTimeout(() => {
           entry.style.gap = "6px";
 
           const beastLink =
-            document.createElement("span");
+          doc.createElement("span");
 
           beastLink.textContent = beast.name;
           beastLink.style.cursor = "pointer";
@@ -2079,7 +2094,7 @@ try {
 };
 
           const removeButton =
-            document.createElement("span");
+            doc.createElement("span");
 
           removeButton.textContent = "×";
           removeButton.title =
@@ -3422,7 +3437,26 @@ Hooks.on("renderApplicationV2", async (app, element) => {
  * template-control chrome on every render.
  */
 v6KillCsbActorChrome(app.element);
+/*
+ * V6 CROSS-WINDOW INITIALIZATION
+ * Re-arm all actor-sheet enhancements whether
+ * this sheet lives in Foundry, inside another
+ * detached sheet, or in its own browser window.
+ */
 
+v6SetCharacterSheetSize();
+
+v6RefreshCustomSkillTape1();
+v6RefreshRemainingCustomSkillTapes();
+
+v6FindHealthDials();
+v6FindSkillDrums();
+
+void v6ArmGarages();
+void v6ArmStables();
+
+v6ArmBeastAttack1();
+v6ArmBeastAttack2();
 if (app._v6RenderAsChild === true) {
 
   app.setPosition({
