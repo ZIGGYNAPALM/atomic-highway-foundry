@@ -1899,12 +1899,22 @@ setTimeout(() => {
           beastLink.style.cursor = "pointer";
           beastLink.style.textDecoration = "underline";
 
-          beastLink.onclick = (event) => {
-            event.preventDefault();
-            event.stopPropagation();
+         beastLink.onclick = (event) => {
+  			event.preventDefault();
+ 	 		event.stopPropagation();
 
-            beast.sheet.render(true);
-          };
+  		  const beastSheet = beast.sheet;
+
+  		  if (
+    	beastSheet &&
+    		typeof beastSheet.detachWindow === "function"
+  			) {
+    	void beastSheet.detachWindow();
+    		return;
+  		}
+
+  beastSheet?.render(true);
+};
 
           const removeButton =
             document.createElement("span");
