@@ -3291,8 +3291,33 @@ Hooks.on("renderApplicationV2", async (app, element) => {
 
 if (detachedRoot) {
 
+  const v6RefreshDetachedChrome = () => {
+
+    const editToggle =
+      detachedRoot.querySelector(
+        'input[name="system.props.WeaponEdit"]'
+      );
+
+    const sheetActions =
+      detachedRoot.querySelector(
+        ".custom-system-sheet-actions"
+      );
+
+    if (sheetActions) {
+      sheetActions.style.setProperty(
+        "display",
+        editToggle?.checked === true
+          ? ""
+          : "none",
+        "important"
+      );
+    }
+  };
+
   const detachedObserver =
     new MutationObserver(() => {
+
+      v6RefreshDetachedChrome();
 
       v6ArmBeastAttack1();
       v6ArmBeastAttack2();
@@ -3309,6 +3334,8 @@ if (detachedRoot) {
 
   app._v6DetachedObserver =
     detachedObserver;
+
+  v6RefreshDetachedChrome();
 
   v6ArmBeastAttack1();
   v6ArmBeastAttack2();
