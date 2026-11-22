@@ -3590,11 +3590,15 @@ Hooks.on("renderApplicationV2", (app, element) => {
     if (!item || item.documentName !== "Item") return;
 
     const root =
-        element instanceof HTMLElement
-            ? element
-            : app.element;
+  element &&
+  typeof element.querySelector === "function"
+    ? element
+    : app.element;
 
-    if (!root) return;
+if (!root) return;
+
+const doc =
+  root.ownerDocument;
 
     const select =
         root.querySelector('[data-key="LNKDWPN"] select');
@@ -3663,7 +3667,7 @@ Hooks.on("renderApplicationV2", (app, element) => {
     select.replaceChildren();
 
     const none =
-        document.createElement("option");
+        doc.createElement("option");
 
     none.value = "";
     none.textContent = "— None —";
@@ -3673,7 +3677,7 @@ Hooks.on("renderApplicationV2", (app, element) => {
     for (const weapon of weapons) {
 
         const option =
-            document.createElement("option");
+            doc.createElement("option");
 
         option.value = weapon.id;
         option.textContent = weapon.name;
@@ -3824,12 +3828,14 @@ Hooks.on("renderApplicationV2", (app, element) => {
     ) return;
 
     const root =
-        element instanceof HTMLElement
-            ? element
-            : app.element;
-
+  element &&
+  typeof element.querySelector === "function"
+    ? element
+    : app.element;
     if (!root) return;
-
+	const doc =
+  root.ownerDocument;
+	
     const weaponDrop =
         root.querySelector(
             '[data-key="WEAPONSDROP"]'
@@ -3948,7 +3954,7 @@ Hooks.on("renderApplicationV2", (app, element) => {
         if (!secondaryLink) continue;
 
         const branch =
-            document.createElement("span");
+            doc.createElement("span");
 
         branch.classList.add(
             "v6-linked-branch"
