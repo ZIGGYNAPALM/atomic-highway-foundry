@@ -1899,19 +1899,45 @@ setTimeout(() => {
           beastLink.style.cursor = "pointer";
           beastLink.style.textDecoration = "underline";
 
-         beastLink.onclick = (event) => {
-  			event.preventDefault();
- 	 		event.stopPropagation();
+        beastLink.onclick = async (event) => {
+  event.preventDefault();
+  event.stopPropagation();
 
-  		  const beastSheet = beast.sheet;
+  const beastSheet =
+    beast.sheet;
 
-  		  if (
-    	beastSheet &&
-    		typeof beastSheet.detachWindow === "function"
-  			) {
-    	void beastSheet.detachWindow();
-    		return;
-  		}
+  const parentApp =
+    [
+      ...foundry.applications.api.ApplicationV2.instances()
+    ].find(app =>
+      app.element === sheet
+    );
+
+  if (
+    parentApp &&
+    beastSheet &&
+    typeof parentApp.renderChild === "function"
+  ) {
+
+    beastSheet._v6RenderAsChild = true;
+
+    try {
+
+      await parentApp.renderChild(
+        beastSheet,
+        {
+          force: true
+        }
+      );
+
+    } finally {
+
+      beastSheet._v6RenderAsChild = false;
+
+    }
+
+    return;
+  }
 
   beastSheet?.render(true);
 };
@@ -3255,6 +3281,9 @@ Hooks.on("renderApplicationV2", async (app, element) => {
     actor.documentName !== "Actor"
   ) return;
 
+	if (app._v6RenderAsChild === true) {
+  return;
+}
   const characterTemplate =
     game.actors.getName("Character");
 
