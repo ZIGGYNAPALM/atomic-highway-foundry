@@ -6,7 +6,22 @@
 Hooks.once("ready", async () => {
 
   console.log("V6 STARTUP — SORK");
+/* =========================================
+   V6 APPLICATION ROOTS
+   Main Foundry + detached browser windows
+   ========================================= */
 
+function v6GetApplicationRoots() {
+
+  return [
+    ...foundry.applications.api.ApplicationV2.instances()
+  ]
+    .map(app => app.element)
+    .filter(root =>
+      root &&
+      typeof root.querySelector === "function"
+    );
+}
      /* =========================================
      CHARACTER SHEET SIZE
      ========================================= */
@@ -2049,7 +2064,7 @@ setTimeout(() => {
 function v6ArmBeastAttack1() {
 
   const sheets =
-    [...document.querySelectorAll(".application")];
+  v6GetApplicationRoots();
 
   for (const sheet of sheets) {
 
@@ -2598,8 +2613,8 @@ v6ArmBeastAttack1();
 function v6ArmBeastAttack2() {
 
   const sheets =
-    [...document.querySelectorAll(".application")];
-
+  v6GetApplicationRoots();
+	
   for (const sheet of sheets) {
 
     const button =
@@ -3272,6 +3287,32 @@ Hooks.on("renderApplicationV2", async (app, element) => {
   try {
 
     await app.detachWindow();
+	  	const detachedRoot = app.element;
+
+if (detachedRoot) {
+
+  const detachedObserver =
+    new MutationObserver(() => {
+
+      v6ArmBeastAttack1();
+      v6ArmBeastAttack2();
+
+    });
+
+  detachedObserver.observe(
+    detachedRoot,
+    {
+      childList: true,
+      subtree: true
+    }
+  );
+
+  app._v6DetachedObserver =
+    detachedObserver;
+
+  v6ArmBeastAttack1();
+  v6ArmBeastAttack2();
+}
 
     console.log(
       "V6 AUTO POP-OUT:",
