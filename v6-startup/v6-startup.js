@@ -102,7 +102,7 @@ function v6InstallDetachButton(app) {
   button.style.flex =
     "0 0 auto";
 
-  button.onclick = event => {
+  button.onpointerdown = event => {
 
     event.preventDefault();
     event.stopPropagation();
