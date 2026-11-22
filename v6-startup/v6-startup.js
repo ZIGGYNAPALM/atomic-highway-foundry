@@ -1690,18 +1690,72 @@ setTimeout(() => {
           vehicleLink.style.textDecoration = "underline";
 
           vehicleLink.onclick = async (event) => {
-            event.preventDefault();
-            event.stopPropagation();
+  event.preventDefault();
+  event.stopPropagation();
 
-            await vehicle.setFlag(
-              "world",
-              "v6GarageOperator",
-              owner.id
-            );
+  await vehicle.setFlag(
+    "world",
+    "v6GarageOperator",
+    owner.id
+  );
 
-            vehicle.sheet.render(true);
-          };
+  const vehicleSheet =
+    vehicle.sheet;
 
+  const parentApp =
+    [
+      ...foundry.applications.api.ApplicationV2.instances()
+    ].find(app =>
+      app.element === sheet
+    );
+
+  if (
+    parentApp &&
+    vehicleSheet &&
+    typeof parentApp.renderChild === "function"
+  ) {
+
+    vehicleSheet._v6RenderAsChild = true;
+
+    try {
+
+      await parentApp.renderChild(
+        vehicleSheet,
+        {
+          force: true
+        }
+      );
+
+      vehicleSheet.setPosition({
+        width: 762,
+        height: 778
+      });
+
+      v6KillCsbActorChrome(
+        vehicleSheet.element
+      );
+
+      v6InstallDetachButton(
+        vehicleSheet
+      );
+
+    } catch (error) {
+
+      vehicleSheet._v6RenderAsChild = false;
+
+      console.warn(
+        "V6 VEHICLE CHILD RENDER FAILED:",
+        vehicle.name,
+        error
+      );
+
+    }
+
+    return;
+  }
+
+  vehicleSheet?.render(true);
+};
           const removeButton =
             document.createElement("span");
 
