@@ -3345,6 +3345,66 @@ if (detachedRoot) {
 
   v6ArmBeastAttack1();
   v6ArmBeastAttack2();
+	/* =========================================
+   V6 DETACHED SHEET — OPEN ITEM LINKS
+   AS THEIR OWN DETACHED WINDOWS
+   ========================================= */
+
+if (!detachedRoot.dataset.v6DetachedLinksArmed) {
+
+  detachedRoot.dataset.v6DetachedLinksArmed = "true";
+
+  detachedRoot.addEventListener(
+    "click",
+    event => {
+
+      const link =
+        event.target.closest?.(".content-link");
+
+      if (!link) return;
+
+      const uuid =
+        link.dataset?.uuid ??
+        link.getAttribute("data-uuid");
+
+      if (!uuid) return;
+
+      const doc =
+        foundry.utils.fromUuidSync(uuid);
+
+      if (
+        !doc ||
+        doc.documentName !== "Item"
+      ) return;
+
+      const itemSheet =
+        doc.sheet;
+
+      if (
+        !itemSheet ||
+        typeof itemSheet.detachWindow !== "function"
+      ) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      void itemSheet
+        .detachWindow()
+        .catch(error => {
+
+          console.warn(
+            "V6 CHILD ITEM POP-OUT FAILED:",
+            doc.name,
+            error
+          );
+
+        });
+
+    },
+    true
+  );
+}
 }
 
     console.log(
