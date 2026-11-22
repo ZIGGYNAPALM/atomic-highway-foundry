@@ -3270,20 +3270,26 @@ Hooks.on("renderApplicationV2", async (app, element) => {
   ) return;
 
   /*
-   * Don't detach the same application repeatedly
-   * every time CSB re-renders it.
-   */
-  if (app._v6AutoDetached) return;
+ * Only detach applications currently rendered
+ * inside the main Foundry browser document.
+ *
+ * If already detached, its element belongs to
+ * the detached window's document instead.
+ */
+const currentRoot = app.element;
 
-  /*
-   * ApplicationV2 only.
-   */
-  if (
-    typeof app.detachWindow !== "function"
-  ) return;
+if (!currentRoot) return;
 
-  app._v6AutoDetached = true;
+if (currentRoot.ownerDocument !== document) {
+  return;
+}
 
+/*
+ * ApplicationV2 only.
+ */
+if (
+  typeof app.detachWindow !== "function"
+) return;
   try {
 
     await app.detachWindow();
@@ -3354,7 +3360,6 @@ if (detachedRoot) {
       error
     );
 
-    app._v6AutoDetached = false;
   }
 });
 	
