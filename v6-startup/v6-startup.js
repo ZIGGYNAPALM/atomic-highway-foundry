@@ -3504,10 +3504,19 @@ function v6ArmEmbeddedItemLinks(app) {
 const itemPosition =
   itemSheet.options?.position ?? {};
 
+const itemWidth =
+  Number(
+    itemPosition.width ??
+    itemSheet.position?.width ??
+    0
+  );
+
 itemSheet.setPosition({
   width:
-    itemPosition.width ??
-    itemSheet.position?.width,
+    Math.max(
+      580,
+      itemWidth
+    ),
 
   height:
     itemPosition.height ??
