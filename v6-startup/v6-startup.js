@@ -913,8 +913,41 @@ function v6SetNonLethalBar(sheet, actor) {
     "important"
   );
 }
-   
-async function v6OpenHealthDialog(actor) {
+   async function v6RenderDialogFromSheet(sheet, config) {
+
+  const parentApp =
+    [
+      ...foundry.applications.api.ApplicationV2.instances()
+    ].find(app =>
+      app.element === sheet
+    );
+
+  const dialog =
+    new foundry.applications.api.DialogV2(config);
+
+  if (
+    parentApp &&
+    typeof parentApp.renderChild === "function"
+  ) {
+
+    await parentApp.renderChild(
+      dialog,
+      {
+        force: true
+      }
+    );
+
+  } else {
+
+    await dialog.render({
+      force: true
+    });
+
+  }
+
+  return dialog;
+}
+async function v6OpenHealthDialog(actor, sheet) {
   const props = actor?.system?.props ?? {};
 
   const health = Number(props.Health ?? 0);
@@ -932,7 +965,7 @@ async function v6OpenHealthDialog(actor) {
     vehicleTemplate &&
     actor.system?.template === vehicleTemplate.id;
 
-  await foundry.applications.api.DialogV2.wait({
+  await v6RenderDialogFromSheet(sheet, {
     window: {
       title: `${actor.name}: Health`
     },
@@ -1171,7 +1204,7 @@ callback: async (event, button, dialog) => {
         label: "CONTINUING DAMAGE",
 
         callback: async () => {
-          await foundry.applications.api.DialogV2.wait({
+          await v6RenderDialogFromSheet(sheet, {
             window: {
               title: `${actor.name}: Continuing Damage`
             },
@@ -1282,7 +1315,6 @@ callback: async (event, button, dialog) => {
               }
             ],
 
-            close: () => null
           });
         }
       },
@@ -1293,7 +1325,6 @@ callback: async (event, button, dialog) => {
       }
     ],
 
-    close: () => null
   });
 }
 
@@ -1329,7 +1360,7 @@ if (healthDial) {
     event.preventDefault();
     event.stopPropagation();
 
-    v6OpenHealthDialog(actor);
+    v6OpenHealthDialog(actor, sheet);
   };
 }
      
@@ -1347,7 +1378,7 @@ v6SetNonLethalBar(sheet, actor);
       event.preventDefault();
       event.stopPropagation();
 
-      v6OpenHealthDialog(actor);
+      v6OpenHealthDialog(actor, sheet);
     };
   }
 });
