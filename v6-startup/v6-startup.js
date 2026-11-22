@@ -22,6 +22,120 @@ function v6GetApplicationRoots() {
       typeof root.querySelector === "function"
     );
 }
+	/* =========================================
+   V6 KILL NATIVE CSB ACTOR CHROME
+   ========================================= */
+
+function v6KillCsbActorChrome(root) {
+
+  if (
+    !root ||
+    typeof root.querySelectorAll !== "function"
+  ) return;
+
+  const selectors = [
+    ".custom-system-actor-content .sheet-header h1.charname",
+    ".custom-system-template-select",
+    ".custom-system-sheet-actions"
+  ];
+
+  for (const selector of selectors) {
+
+    root
+      .querySelectorAll(selector)
+      .forEach(element => {
+
+        element.style.setProperty(
+          "display",
+          "none",
+          "important"
+        );
+
+      });
+  }
+}
+	/* =========================================
+   V6 CHILD SHEET — REAL DETACH BUTTON
+   ========================================= */
+
+function v6InstallDetachButton(app) {
+
+  const root =
+    app?.element;
+
+  if (
+    !root ||
+    typeof root.querySelector !== "function"
+  ) return;
+
+  const header =
+    root.querySelector(
+      ".window-header"
+    );
+
+  if (!header) return;
+
+  if (
+    header.querySelector(
+      ".v6-real-detach"
+    )
+  ) return;
+
+  const doc =
+    root.ownerDocument;
+
+  const button =
+    doc.createElement("button");
+
+  button.type = "button";
+
+  button.classList.add(
+    "v6-real-detach"
+  );
+
+  button.title =
+    "Pop Out Sheet";
+
+  button.innerHTML =
+    '<i class="fa-solid fa-up-right-from-square"></i>';
+
+  button.style.flex =
+    "0 0 auto";
+
+  button.onclick = event => {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    /*
+     * It is no longer deliberately being
+     * hosted as another sheet's child.
+     */
+    app._v6RenderAsChild = false;
+
+    void app
+      .detachWindow()
+      .catch(error => {
+
+        console.warn(
+          "V6 CHILD DETACH FAILED:",
+          error
+        );
+
+      });
+  };
+
+  const closeButton =
+    header.querySelector(
+      '[data-action="close"]'
+    );
+
+  if (closeButton) {
+    closeButton.before(button);
+  } else {
+    header.appendChild(button);
+  }
+}
      /* =========================================
      CHARACTER SHEET SIZE
      ========================================= */
@@ -1470,61 +1584,7 @@ setTimeout(() => {
   );
 
   v6FindSkillDrums();
-
-     /* =========================================
-     V6 EDIT MODE
-     ========================================= */
-
-  document.addEventListener("click", (event) => {
-    if (!event.target.matches('input[name="system.props.WeaponEdit"]')) return;
-
-    const editToggleId = event.target.id;
-
-    setTimeout(() => {
-      const editToggle = document.getElementById(editToggleId);
-      const sheet = editToggle?.closest("form");
-      const sheetActions =
-        sheet?.querySelector(".custom-system-sheet-actions");
-
-      if (!editToggle || !sheetActions) return;
-
-      sheetActions.style.setProperty(
-        "display",
-        editToggle.checked ? "" : "none",
-        "important"
-      );
-    }, 200);
-  }, true);
-
-     globalThis.v6EditModeObserver =
-    new MutationObserver(() => {
-      const toggles = document.querySelectorAll(
-        'input[name="system.props.WeaponEdit"]'
-      );
-
-      for (const editToggle of toggles) {
-        const sheet = editToggle.closest("form");
-        const sheetActions =
-          sheet?.querySelector(".custom-system-sheet-actions");
-
-        if (!sheetActions) continue;
-
-        sheetActions.style.setProperty(
-          "display",
-          editToggle.checked ? "" : "none",
-          "important"
-        );
-      }
-    });
-
-  globalThis.v6EditModeObserver.observe(
-    document.body,
-    {
-      childList: true,
-      subtree: true
-    }
-  );
-   
+  
   /* =========================================
      GARAGE
      ========================================= */
@@ -1921,20 +1981,42 @@ setTimeout(() => {
 
     beastSheet._v6RenderAsChild = true;
 
-    try {
+try {
 
-      await parentApp.renderChild(
-        beastSheet,
-        {
-          force: true
-        }
-      );
-
-    } finally {
-
-      beastSheet._v6RenderAsChild = false;
-
+  await parentApp.renderChild(
+    beastSheet,
+    {
+      force: true
     }
+  );
+
+  /*
+   * Give child the same standard dimensions.
+   */
+  beastSheet.setPosition({
+    width: 762,
+    height: 778
+  });
+
+  v6KillCsbActorChrome(
+    beastSheet.element
+  );
+
+  v6InstallDetachButton(
+    beastSheet
+  );
+
+} catch (error) {
+
+  beastSheet._v6RenderAsChild = false;
+
+  console.warn(
+    "V6 CHILD RENDER FAILED:",
+    beast.name,
+    error
+  );
+
+}
 
     return;
   }
@@ -3277,11 +3359,25 @@ Hooks.on("renderApplicationV2", async (app, element) => {
     app.document;
 
   if (
-    !actor ||
-    actor.documentName !== "Actor"
-  ) return;
+  !actor ||
+  actor.documentName !== "Actor"
+) return;
 
-	if (app._v6RenderAsChild === true) {
+/*
+ * Kill CSB's native Name / Template /
+ * template-control chrome on every render.
+ */
+v6KillCsbActorChrome(app.element);
+
+if (app._v6RenderAsChild === true) {
+
+  app.setPosition({
+    width: 762,
+    height: 778
+  });
+
+  v6InstallDetachButton(app);
+
   return;
 }
   const characterTemplate =
@@ -3338,26 +3434,11 @@ if (detachedRoot) {
 
   const v6RefreshDetachedChrome = () => {
 
-    const editToggle =
-      detachedRoot.querySelector(
-        'input[name="system.props.WeaponEdit"]'
-      );
+  v6KillCsbActorChrome(
+    detachedRoot
+  );
 
-    const sheetActions =
-      detachedRoot.querySelector(
-        ".custom-system-sheet-actions"
-      );
-
-    if (sheetActions) {
-      sheetActions.style.setProperty(
-        "display",
-        editToggle?.checked === true
-          ? ""
-          : "none",
-        "important"
-      );
-    }
-  };
+};
 
   const detachedObserver =
     new MutationObserver(() => {
@@ -3384,66 +3465,7 @@ if (detachedRoot) {
 
   v6ArmBeastAttack1();
   v6ArmBeastAttack2();
-	/* =========================================
-   V6 DETACHED SHEET — OPEN ITEM LINKS
-   AS THEIR OWN DETACHED WINDOWS
-   ========================================= */
-
-if (!detachedRoot.dataset.v6DetachedLinksArmed) {
-
-  detachedRoot.dataset.v6DetachedLinksArmed = "true";
-
-  detachedRoot.addEventListener(
-    "click",
-    event => {
-
-      const link =
-        event.target.closest?.(".content-link");
-
-      if (!link) return;
-
-      const uuid =
-        link.dataset?.uuid ??
-        link.getAttribute("data-uuid");
-
-      if (!uuid) return;
-
-      const doc =
-        foundry.utils.fromUuidSync(uuid);
-
-      if (
-        !doc ||
-        doc.documentName !== "Item"
-      ) return;
-
-      const itemSheet =
-        doc.sheet;
-
-      if (
-        !itemSheet ||
-        typeof itemSheet.detachWindow !== "function"
-      ) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      void itemSheet
-        .detachWindow()
-        .catch(error => {
-
-          console.warn(
-            "V6 CHILD ITEM POP-OUT FAILED:",
-            doc.name,
-            error
-          );
-
-        });
-
-    },
-    true
-  );
-}
+	
 }
 
     console.log(
