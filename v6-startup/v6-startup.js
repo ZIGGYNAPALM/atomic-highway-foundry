@@ -3418,6 +3418,106 @@ Hooks.on("updateActor", async (actor, changes) => {
 });
 
 	/* =========================================
+   V6 EMBEDDED ITEM LINKS
+   Open Items as children of their Actor sheet
+   ========================================= */
+
+function v6ArmEmbeddedItemLinks(app) {
+
+  const root =
+    app?.element;
+
+  if (
+    !root ||
+    typeof root.querySelector !== "function"
+  ) return;
+
+  if (
+    root.dataset.v6ItemLinksArmed === "true"
+  ) return;
+
+  root.dataset.v6ItemLinksArmed = "true";
+
+  root.addEventListener(
+    "click",
+    async event => {
+
+      const link =
+        event.target?.closest?.(
+          ".content-link"
+        );
+
+      if (
+        !link ||
+        !root.contains(link)
+      ) return;
+
+      const uuid =
+        link.dataset?.uuid ??
+        link.getAttribute("data-uuid") ??
+        "";
+
+      /*
+       * Only take over Item links.
+       * Leave Actor, Journal, etc. links alone.
+       */
+      if (
+        !uuid ||
+        !/(^|\.)Item\./.test(uuid)
+      ) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const item =
+        await fromUuid(uuid);
+
+      if (
+        !item ||
+        item.documentName !== "Item"
+      ) return;
+
+      const itemSheet =
+        item.sheet;
+
+      if (
+        !itemSheet ||
+        typeof app.renderChild !== "function"
+      ) return;
+
+      itemSheet._v6RenderAsChild = true;
+
+      try {
+
+        await app.renderChild(
+          itemSheet,
+          {
+            force: true
+          }
+        );
+
+        v6InstallDetachButton(
+          itemSheet
+        );
+
+      } catch (error) {
+
+        itemSheet._v6RenderAsChild = false;
+
+        console.warn(
+          "V6 ITEM CHILD RENDER FAILED:",
+          item.name,
+          error
+        );
+
+      }
+    },
+    true
+  );
+}
+	
+	/* =========================================
    V6 AUTO POP-OUT — ACTOR SHEETS TEST
    ========================================= */
 
@@ -3437,6 +3537,7 @@ Hooks.on("renderApplicationV2", async (app, element) => {
  * template-control chrome on every render.
  */
 v6KillCsbActorChrome(app.element);
+	v6ArmEmbeddedItemLinks(app);
 /*
  * V6 CROSS-WINDOW INITIALIZATION
  * Re-arm all actor-sheet enhancements whether
