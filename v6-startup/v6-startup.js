@@ -253,6 +253,8 @@ function v6InstallTemplateControls(app) {
     "v6-template-select"
   );
 
+	select.style.width = "180px";
+	select.style.flex = "0 0 180px";
   /*
    * Copy CSB's current options exactly.
    */
