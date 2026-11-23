@@ -137,6 +137,292 @@ function v6InstallDetachButton(app) {
     header.appendChild(button);
   }
 }
+	/* =========================================
+   V6 CUSTOM TEMPLATE CONTROLS
+   Bottom-of-sheet CSB template proxy
+   ========================================= */
+
+function v6InstallTemplateControls(app) {
+
+  const root =
+    app?.element;
+
+  const actor =
+    app?.actor ??
+    app?.document;
+
+  if (
+    !root ||
+    !actor ||
+    actor.documentName !== "Actor" ||
+    typeof root.querySelector !== "function"
+  ) return;
+
+  if (
+    root.querySelector(".v6-template-controls")
+  ) return;
+
+  const editControl =
+    root.querySelector(
+      '[data-key="WeaponEdit"]'
+    );
+
+  if (!editControl) return;
+
+  const editCheckbox =
+    editControl.querySelector(
+      'input[name="system.props.WeaponEdit"]'
+    );
+
+  if (!editCheckbox) return;
+
+  /*
+   * CSB's real hidden controls.
+   * We leave them in the DOM and use them
+   * as the actual template engine.
+   */
+
+  const nativeTemplateArea =
+    root.querySelector(
+      ".custom-system-template-select"
+    );
+
+  const nativeTemplateSelect =
+    nativeTemplateArea?.querySelector(
+      "select"
+    );
+
+  const nativeActions =
+    root.querySelector(
+      ".custom-system-sheet-actions"
+    );
+
+  if (
+    !nativeTemplateSelect ||
+    !nativeActions
+  ) {
+    console.warn(
+      "V6 TEMPLATE CONTROLS: Native CSB controls not found.",
+      actor.name
+    );
+
+    return;
+  }
+
+  const nativeUpdateControl =
+    nativeActions.querySelector(
+      'button, a'
+    );
+
+  if (!nativeUpdateControl) {
+
+    console.warn(
+      "V6 TEMPLATE CONTROLS: CSB update control not found.",
+      actor.name
+    );
+
+    return;
+  }
+
+
+  const doc =
+    root.ownerDocument;
+
+  const controls =
+    doc.createElement("div");
+
+  controls.classList.add(
+    "v6-template-controls"
+  );
+
+  controls.style.display = "none";
+  controls.style.alignItems = "center";
+  controls.style.justifyContent = "flex-end";
+  controls.style.gap = "6px";
+  controls.style.marginRight = "6px";
+
+
+  /* -------------------------
+     CUSTOM TEMPLATE DROPDOWN
+     ------------------------- */
+
+  const select =
+    doc.createElement("select");
+
+  select.classList.add(
+    "v6-template-select"
+  );
+
+  /*
+   * Copy CSB's current options exactly.
+   */
+  for (
+    const nativeOption
+    of nativeTemplateSelect.options
+  ) {
+
+    const option =
+      doc.createElement("option");
+
+    option.value =
+      nativeOption.value;
+
+    option.textContent =
+      nativeOption.textContent;
+
+    option.disabled =
+      nativeOption.disabled;
+
+    select.appendChild(option);
+  }
+
+  select.value =
+    nativeTemplateSelect.value;
+
+
+  select.addEventListener(
+    "change",
+    event => {
+
+      nativeTemplateSelect.value =
+        event.currentTarget.value;
+
+      /*
+       * Let CSB process its own template
+       * selection normally.
+       */
+      nativeTemplateSelect.dispatchEvent(
+        new root.ownerDocument.defaultView.Event(
+          "change",
+          {
+            bubbles: true
+          }
+        )
+      );
+
+    }
+  );
+
+
+  /* -------------------------
+     CUSTOM UPDATE BUTTON
+     ------------------------- */
+
+  const updateButton =
+    doc.createElement("button");
+
+  updateButton.type = "button";
+
+  updateButton.classList.add(
+    "v6-template-update"
+  );
+
+  updateButton.title =
+    "Update sheet from selected template";
+
+  updateButton.innerHTML =
+    '<i class="fa-solid fa-arrows-rotate"></i>';
+
+  updateButton.addEventListener(
+    "click",
+    event => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      /*
+       * First synchronize the selected value
+       * with CSB's hidden native selector.
+       */
+      nativeTemplateSelect.value =
+        select.value;
+
+      nativeTemplateSelect.dispatchEvent(
+        new root.ownerDocument.defaultView.Event(
+          "change",
+          {
+            bubbles: true
+          }
+        )
+      );
+
+      /*
+       * Then use CSB's own Apply / Reload control.
+       */
+      nativeUpdateControl.click();
+
+    }
+  );
+
+
+  controls.appendChild(select);
+  controls.appendChild(updateButton);
+
+
+  /*
+   * Put our controls immediately before the
+   * existing Edit Mode wrench / lock.
+   */
+  editControl.insertAdjacentElement(
+    "beforebegin",
+    controls
+  );
+
+
+  function refreshVisibility() {
+
+    const editing =
+      editCheckbox.checked === true;
+
+    controls.style.display =
+      editing
+        ? "flex"
+        : "none";
+
+    /*
+     * Keep our dropdown synchronized if CSB
+     * changes the current template elsewhere.
+     */
+    if (
+      select.value !==
+      nativeTemplateSelect.value
+    ) {
+
+      select.value =
+        nativeTemplateSelect.value;
+    }
+  }
+
+
+  editCheckbox.addEventListener(
+    "change",
+    refreshVisibility
+  );
+
+  refreshVisibility();
+}
+
+
+/*
+ * Install on every Actor-sheet render.
+ */
+Hooks.on(
+  "renderApplicationV2",
+  app => {
+
+    const actor =
+      app?.actor ??
+      app?.document;
+
+    if (
+      !actor ||
+      actor.documentName !== "Actor"
+    ) return;
+
+    v6InstallTemplateControls(app);
+
+  }
+);
      /* =========================================
      CHARACTER SHEET SIZE
      ========================================= */
@@ -3746,7 +4032,8 @@ Hooks.on("renderApplicationV2", async (app, element) => {
  * template-control chrome on every render.
  */
 v6KillCsbActorChrome(app.element);
-	v6ArmEmbeddedItemLinks(app);
+v6InstallTemplateControls(app);
+v6ArmEmbeddedItemLinks(app);
 /*
  * V6 CROSS-WINDOW INITIALIZATION
  * Re-arm all actor-sheet enhancements whether
