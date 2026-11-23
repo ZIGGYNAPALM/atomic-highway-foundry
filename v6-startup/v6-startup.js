@@ -4224,16 +4224,11 @@ async function v6AddActorToCombat(actor) {
   }
 
 
-  if (
-    combat.getCombatantsByActor(actor).length > 0
-  ) {
-
-    ui.notifications.info(
-      `${actor.name} is already in combat.`
-    );
-
-    return;
-  }
+ if (
+  combat.getCombatantsByActor(actor).length > 0
+) {
+  return;
+}
 
 
   await combat.createEmbeddedDocuments(
