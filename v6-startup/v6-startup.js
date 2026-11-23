@@ -34,6 +34,7 @@ function v6KillCsbActorChrome(root) {
   ) return;
 
   const selectors = [
+	".custom-system-actor-content .sheet-header .profile-img-container",
     ".custom-system-actor-content .sheet-header h1.charname",
     ".custom-system-template-select",
     ".custom-system-sheet-actions"
