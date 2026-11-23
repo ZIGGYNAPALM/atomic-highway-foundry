@@ -3369,7 +3369,158 @@ globalThis.v6BeastAttack2Observer.observe(
 );
 
 v6ArmBeastAttack2();
-   
+
+/* =========================================
+   V6 ACTOR IDENTITY SYNC
+   Sheet Name / Portrait -> Native Foundry Actor
+   ========================================= */
+
+globalThis.v6IdentitySyncing ??=
+  new WeakSet();
+
+function v6GetActorIdentity(actor) {
+
+  if (
+    !actor ||
+    actor.documentName !== "Actor"
+  ) return null;
+
+  const props =
+    actor.system?.props ?? {};
+
+  const characterTemplate =
+    game.actors.getName("Character");
+
+  const vehicleTemplate =
+    game.actors.getName("Vehicle");
+
+  const beastTemplate =
+    game.actors.getName("Beast");
+
+  const templateId =
+    actor.system?.template;
+
+  const isCharacter =
+    characterTemplate &&
+    templateId === characterTemplate.id;
+
+  const isVehicle =
+    vehicleTemplate &&
+    templateId === vehicleTemplate.id;
+
+  const isBeast =
+    beastTemplate &&
+    templateId === beastTemplate.id;
+
+  if (
+    !isCharacter &&
+    !isVehicle &&
+    !isBeast
+  ) return null;
+
+  const name =
+    String(
+      props.chName ?? ""
+    ).trim();
+
+  const rawImage =
+    isVehicle
+      ? props.VPic
+      : props.Pic;
+
+  const img =
+    typeof rawImage === "string"
+      ? rawImage.trim()
+      : String(
+          rawImage?.path ??
+          rawImage?.src ??
+          rawImage?.img ??
+          ""
+        ).trim();
+
+  return {
+    name,
+    img
+  };
+}
+
+
+async function v6SyncActorIdentity(actor) {
+
+  if (
+    globalThis.v6IdentitySyncing.has(actor)
+  ) return;
+
+  const identity =
+    v6GetActorIdentity(actor);
+
+  if (!identity) return;
+
+  const updates = {};
+
+  if (
+    identity.name &&
+    actor.name !== identity.name
+  ) {
+    updates.name =
+      identity.name;
+  }
+
+  if (
+    identity.img &&
+    actor.img !== identity.img
+  ) {
+    updates.img =
+      identity.img;
+  }
+
+  if (
+    Object.keys(updates).length === 0
+  ) return;
+
+  globalThis.v6IdentitySyncing.add(actor);
+
+  try {
+
+    await actor.update(updates);
+
+    console.log(
+      "V6 ACTOR IDENTITY SYNC:",
+      identity.name || actor.name
+    );
+
+  } finally {
+
+    globalThis.v6IdentitySyncing.delete(actor);
+
+  }
+}
+
+
+/*
+ * Keep native Foundry Actor identity synchronized
+ * whenever CSB Actor data changes.
+ */
+Hooks.on(
+  "updateActor",
+  async actor => {
+
+    await v6SyncActorIdentity(actor);
+
+  }
+);
+
+
+/*
+ * Synchronize actors that already existed
+ * when the world loaded.
+ */
+for (const actor of game.actors) {
+
+  void v6SyncActorIdentity(actor);
+
+}
+	
  /* =========================================
    AUTO-PRONE / VEHICLE WRECKED AT ZERO HEALTH
    ========================================= */
