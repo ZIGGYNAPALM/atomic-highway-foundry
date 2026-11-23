@@ -4184,13 +4184,19 @@ if (detachedRoot) {
    Tokenless Character / Beast combatants
    ========================================= */
 
-async function v6AddActorToCombat(actor) {
+const v6CombatAddsInProgress = new Set();
 
+async function v6AddActorToCombat(actor) {
+	
   if (
     !actor ||
     actor.documentName !== "Actor"
   ) return;
+	
+  if (v6CombatAddsInProgress.has(actor.id)) return;
 
+v6CombatAddsInProgress.add(actor.id);
+	
   const characterTemplate =
     game.actors.getName("Character");
 
@@ -4231,6 +4237,8 @@ async function v6AddActorToCombat(actor) {
 }
 
 
+  try {
+
   await combat.createEmbeddedDocuments(
     "Combatant",
     [
@@ -4243,8 +4251,12 @@ async function v6AddActorToCombat(actor) {
   ui.notifications.info(
     `${actor.name} added to combat.`
   );
-}
 
+} finally {
+
+  v6CombatAddsInProgress.delete(actor.id);
+}
+}
 
 Hooks.on(
   "getActorContextOptions",
