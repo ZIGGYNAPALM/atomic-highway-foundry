@@ -3888,122 +3888,7 @@ Hooks.on("updateActor", async (actor, changes) => {
   }
 });
 
-/* =========================================
-   V6 ACTOR DIRECTORY — ADD TO COMBAT
-   Tokenless Character / Beast combatants
-   ========================================= */
 
-async function v6AddActorToCombat(actor) {
-
-  if (
-    !actor ||
-    actor.documentName !== "Actor"
-  ) return;
-
-  /*
-   * For this first test, only allow
-   * Character and Beast templates.
-   */
-  const characterTemplate =
-    game.actors.getName("Character");
-
-  const beastTemplate =
-    game.actors.getName("Beast");
-
-  const validTemplateIds =
-    new Set(
-      [
-        characterTemplate?.id,
-        beastTemplate?.id
-      ].filter(Boolean)
-    );
-
-  if (
-    !validTemplateIds.has(
-      actor.system?.template
-    )
-  ) return;
-
-
-  /*
-   * Use the currently active Combat if one exists.
-   * Otherwise create a new tokenless Combat.
-   */
-  let combat =
-    game.combat;
-
-  if (!combat) {
-
-    combat =
-      await foundry.documents.Combat.create({
-        name: "Combat"
-      });
-  }
-
-
-  /*
-   * Don't add the same Actor twice.
-   */
-  if (
-    combat.getCombatantsByActor(actor).length > 0
-  ) {
-
-    ui.notifications.info(
-      `${actor.name} is already in combat.`
-    );
-
-    return;
-  }
-
-
-  /*
-   * Create an Actor-backed Combatant.
-   * No Token ID is supplied.
-   */
-  await combat.createEmbeddedDocuments(
-    "Combatant",
-    [
-      {
-        actorId: actor.id
-      }
-    ]
-  );
-
-  ui.notifications.info(
-    `${actor.name} added to combat.`
-  );
-}
-
-
-Hooks.on(
-  "getActorContextOptions",
-  (application, menuItems) => {
-
-    menuItems.push({
-
-      name: "Add to Combat",
-
-      icon:
-        '<i class="fa-solid fa-swords"></i>',
-
-      condition: () => true,
-
-      callback: async element => {
-
-        const actorId =
-          element.dataset?.entryId ??
-          element.dataset?.documentId ??
-          element.dataset?.actorId;
-
-        const actor =
-          game.actors.get(actorId);
-
-        await v6AddActorToCombat(actor);
-      }
-
-    });
-  }
-);
 	
 	/* =========================================
    V6 EMBEDDED ITEM LINKS
@@ -4294,7 +4179,107 @@ if (detachedRoot) {
 
 
 });
+/* =========================================
+   V6 ACTOR DIRECTORY — ADD TO COMBAT
+   Tokenless Character / Beast combatants
+   ========================================= */
 
+async function v6AddActorToCombat(actor) {
+
+  if (
+    !actor ||
+    actor.documentName !== "Actor"
+  ) return;
+
+  const characterTemplate =
+    game.actors.getName("Character");
+
+  const beastTemplate =
+    game.actors.getName("Beast");
+
+  const validTemplateIds =
+    new Set(
+      [
+        characterTemplate?.id,
+        beastTemplate?.id
+      ].filter(Boolean)
+    );
+
+  if (
+    !validTemplateIds.has(
+      actor.system?.template
+    )
+  ) return;
+
+
+  let combat =
+    game.combat;
+
+  if (!combat) {
+
+    combat =
+      await foundry.documents.Combat.create({
+        name: "Combat"
+      });
+  }
+
+
+  if (
+    combat.getCombatantsByActor(actor).length > 0
+  ) {
+
+    ui.notifications.info(
+      `${actor.name} is already in combat.`
+    );
+
+    return;
+  }
+
+
+  await combat.createEmbeddedDocuments(
+    "Combatant",
+    [
+      {
+        actorId: actor.id
+      }
+    ]
+  );
+
+  ui.notifications.info(
+    `${actor.name} added to combat.`
+  );
+}
+
+
+Hooks.on(
+  "getActorContextOptions",
+  (application, menuItems) => {
+
+    menuItems.push({
+
+      name: "Add to Combat",
+
+      icon:
+        '<i class="fa-solid fa-swords"></i>',
+
+      condition: () => true,
+
+      callback: async element => {
+
+        const actorId =
+          element.dataset?.entryId ??
+          element.dataset?.documentId ??
+          element.dataset?.actorId;
+
+        const actor =
+          game.actors.get(actorId);
+
+        await v6AddActorToCombat(actor);
+      }
+
+    });
+  }
+);
 /* =========================================================
    V6 VEHICLE WEAPONS — LINKED WEAPON DROPDOWN
    ========================================================= */
