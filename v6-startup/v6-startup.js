@@ -1236,6 +1236,88 @@ function v6SetNonLethalBar(sheet, actor) {
 
   return dialog;
 }
+	async function v6PromptFromSheet(sheet, config) {
+
+  const parentApp =
+    [
+      ...foundry.applications.api.ApplicationV2.instances()
+    ].find(app =>
+      app.element === sheet
+    );
+
+  const {
+    ok = {},
+    ...dialogConfig
+  } = config;
+
+  return await new Promise(async resolve => {
+
+    let settled = false;
+
+    const finish = value => {
+
+      if (settled) return;
+
+      settled = true;
+      resolve(value);
+    };
+
+    const originalCallback =
+      ok.callback;
+
+    const dialog =
+      new foundry.applications.api.DialogV2({
+        ...dialogConfig,
+
+        buttons: [
+          {
+            action: "ok",
+            label: ok.label ?? "OK",
+            default: true,
+
+            callback: async (...args) => {
+
+              const value =
+                originalCallback
+                  ? await originalCallback(...args)
+                  : "ok";
+
+              finish(value);
+
+              return value;
+            }
+          }
+        ]
+      });
+
+    dialog.addEventListener(
+      "close",
+      () => finish(null),
+      {
+        once: true
+      }
+    );
+
+    if (
+      parentApp &&
+      typeof parentApp.renderChild === "function"
+    ) {
+
+      await parentApp.renderChild(
+        dialog,
+        {
+          force: true
+        }
+      );
+
+    } else {
+
+      await dialog.render({
+        force: true
+      });
+    }
+  });
+}
 async function v6OpenHealthDialog(actor, sheet) {
   const props = actor?.system?.props ?? {};
 
@@ -1761,7 +1843,7 @@ setTimeout(() => {
 
         const current = Number(actor.system?.props?.[skillKey] ?? 0);
 
-        const result = await foundry.applications.api.DialogV2.prompt({
+        const result = await v6PromptFromSheet(root, {
           window: {
             title: skillName
           },
