@@ -4309,6 +4309,55 @@ Hooks.on(
     });
   }
 );
+
+/* =========================================
+   V6 COMBAT — MAJOR / MINOR INITIATIVE TIES
+   Equal initiative: Major acts before Minor
+   ========================================= */
+
+const v6OriginalCombatSort =
+  foundry.documents.Combat.prototype._sortCombatants;
+
+foundry.documents.Combat.prototype._sortCombatants =
+  function(a, b) {
+
+    const normalSort =
+      v6OriginalCombatSort.call(this, a, b);
+
+    /*
+     * Only intervene when both combatants have
+     * the same actual initiative score.
+     */
+    if (
+      a.initiative === null ||
+      a.initiative === undefined ||
+      b.initiative === null ||
+      b.initiative === undefined ||
+      a.initiative !== b.initiative
+    ) {
+      return normalSort;
+    }
+
+    const aMinor =
+      a.actor?.system?.props?.Minor === true;
+
+    const bMinor =
+      b.actor?.system?.props?.Minor === true;
+
+    /*
+     * Same classification:
+     * leave Foundry's normal tie-break alone.
+     */
+    if (aMinor === bMinor) {
+      return normalSort;
+    }
+
+    /*
+     * Major = Minor unchecked.
+     * Major sorts ahead of Minor.
+     */
+    return aMinor ? 1 : -1;
+  };
 /* =========================================================
    V6 VEHICLE WEAPONS — LINKED WEAPON DROPDOWN
    ========================================================= */
