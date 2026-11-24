@@ -523,7 +523,11 @@ function v6RefreshCustomSkillTape1() {
     actor.system?.props?.CustomName1 ?? ""
   ).trim();
 
-    button.dataset.v6CustomName = customName;
+    if (customName) {
+  button.dataset.v6CustomName = customName;
+} else {
+  delete button.dataset.v6CustomName;
+}
 
     button.title =
       `${customName} — Shift+click to rename`;
@@ -588,7 +592,11 @@ function v6RefreshRemainingCustomSkillTapes() {
           actor.system?.props?.[customSkill.nameKey] ?? ""
         ).trim();
 
-      button.dataset.v6CustomName = customName;
+      if (customName) {
+  		button.dataset.v6CustomName = customName;
+			} else {
+  		delete button.dataset.v6CustomName;
+			}
 
       button.title =
         customName
