@@ -1714,7 +1714,60 @@ callback: async (event, button, dialog) => {
   });
 }
 
-   
+   function v6DisableDashboardHitbox(sheet) {
+
+  const dashInd =
+    sheet.querySelector(
+      '[data-key="DASHIND"]'
+    );
+
+  if (!dashInd) return;
+
+  dashInd.style.setProperty(
+    "pointer-events",
+    "none",
+    "important"
+  );
+
+  dashInd
+    .querySelectorAll("*")
+    .forEach(element => {
+
+      element.style.setProperty(
+        "pointer-events",
+        "none",
+        "important"
+      );
+
+    });
+
+	   const proneControls =
+  dashInd.querySelectorAll(
+    '[data-key="PRONEFALSE"], [data-key="PRONETRUE"]'
+  );
+
+proneControls.forEach(control => {
+
+  control.style.setProperty(
+    "pointer-events",
+    "auto",
+    "important"
+  );
+
+  control
+    .querySelectorAll("*")
+    .forEach(element => {
+
+      element.style.setProperty(
+        "pointer-events",
+        "auto",
+        "important"
+      );
+
+    });
+});
+	   
+}
 function v6ArmHealthDial(sheet, actor) {
    const vehicleTemplate =
   game.actors.getName("Vehicle");
@@ -1737,6 +1790,7 @@ if (healthMult) {
   v6SetHealthNeedle(sheet, actor);
   v6SetHealthOdometer(sheet, actor);
   v6SetNonLethalBar(sheet, actor);
+  v6DisableDashboardHitbox(sheet);	
      const healthDial = sheet.querySelector('[data-key="HEALTHDIAL"]');
 
 if (healthDial) {
@@ -1754,6 +1808,7 @@ const observer = new MutationObserver(() => {
 v6SetHealthNeedle(sheet, actor);
 v6SetHealthOdometer(sheet, actor);
 v6SetNonLethalBar(sheet, actor);
+v6DisableDashboardHitbox(sheet);
   const currentHealthDial =
     sheet.querySelector('[data-key="HEALTHDIAL"]');
 
