@@ -4349,8 +4349,21 @@ foundry.documents.Combat.prototype._sortCombatants =
      * leave Foundry's normal tie-break alone.
      */
     if (aMinor === bMinor) {
-      return normalSort;
+
+  const aName =
+    String(a.actor?.name ?? a.name ?? "");
+
+  const bName =
+    String(b.actor?.name ?? b.name ?? "");
+
+  return aName.localeCompare(
+    bName,
+    undefined,
+    {
+      sensitivity: "base"
     }
+  );
+}
 
     /*
      * Major = Minor unchecked.
