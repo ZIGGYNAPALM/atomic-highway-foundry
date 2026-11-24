@@ -4269,7 +4269,29 @@ Hooks.on(
       icon:
         '<i class="fa-solid fa-swords"></i>',
 
-      condition: () => true,
+      condition: element => {
+
+  const actorId =
+    element.dataset?.entryId ??
+    element.dataset?.documentId ??
+    element.dataset?.actorId;
+
+  const actor =
+    game.actors.get(actorId);
+
+  if (!actor) return false;
+
+  const characterTemplate =
+    game.actors.getName("Character");
+
+  const beastTemplate =
+    game.actors.getName("Beast");
+
+  return (
+    actor.system?.template === characterTemplate?.id ||
+    actor.system?.template === beastTemplate?.id
+  );
+},
 
       callback: async element => {
 
