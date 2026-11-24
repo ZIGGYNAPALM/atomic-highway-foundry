@@ -1245,6 +1245,21 @@ function v6SetNonLethalBar(sheet, actor) {
       app.element === sheet
     );
 
+		console.log("V6 PROMPT PARENT CHECK:", {
+  sheet,
+  sheetDocument: sheet?.ownerDocument,
+  parentApp,
+  applications: [
+    ...foundry.applications.api.ApplicationV2.instances()
+  ].map(app => ({
+    id: app.id,
+    element: app.element,
+    sameElement: app.element === sheet,
+    sameDocument:
+      app.element?.ownerDocument === sheet?.ownerDocument
+  }))
+});
+		
   const {
     ok = {},
     ...dialogConfig
