@@ -569,10 +569,121 @@ function v6ApplyPhotoZoom(app) {
 
     if (!photo) return;
 
-    const image =
+    let image =
       photo.querySelector("img");
 
     if (!image) return;
+
+    let viewport =
+      image.parentElement?.classList?.contains(
+        "v6-photo-viewport"
+      )
+        ? image.parentElement
+        : null;
+
+    /*
+     * CSB does not provide a usable clipping box
+     * around the portrait, so create our own.
+     */
+    if (!viewport) {
+
+      const width =
+        image.offsetWidth ||
+        120;
+
+      const height =
+        image.offsetHeight ||
+        157;
+
+      viewport =
+        root.ownerDocument.createElement("div");
+
+      viewport.classList.add(
+        "v6-photo-viewport"
+      );
+
+      viewport.style.setProperty(
+        "width",
+        `${width}px`,
+        "important"
+      );
+
+      viewport.style.setProperty(
+        "height",
+        `${height}px`,
+        "important"
+      );
+
+      viewport.style.setProperty(
+        "overflow",
+        "hidden",
+        "important"
+      );
+
+      viewport.style.setProperty(
+        "position",
+        "relative",
+        "important"
+      );
+
+      viewport.style.setProperty(
+        "display",
+        "inline-block",
+        "important"
+      );
+
+      viewport.style.setProperty(
+        "vertical-align",
+        "top",
+        "important"
+      );
+
+      image.before(viewport);
+
+      viewport.appendChild(image);
+
+      image.style.setProperty(
+        "position",
+        "absolute",
+        "important"
+      );
+
+      image.style.setProperty(
+        "left",
+        "0",
+        "important"
+      );
+
+      image.style.setProperty(
+        "top",
+        "0",
+        "important"
+      );
+
+      image.style.setProperty(
+        "width",
+        "100%",
+        "important"
+      );
+
+      image.style.setProperty(
+        "height",
+        "100%",
+        "important"
+      );
+
+      image.style.setProperty(
+        "max-width",
+        "none",
+        "important"
+      );
+
+      image.style.setProperty(
+        "max-height",
+        "none",
+        "important"
+      );
+    }
 
     const zoom =
       Number(
@@ -582,17 +693,25 @@ function v6ApplyPhotoZoom(app) {
         ) ?? 1
       );
 
+    const expectedTransform =
+      `scale(${zoom})`;
+
     image.style.setProperty(
       "transform-origin",
       "50% 50%",
       "important"
     );
 
-    image.style.setProperty(
-      "transform",
-      `scale(${zoom})`,
-      "important"
-    );
+    if (
+      image.style.transform !==
+      expectedTransform
+    ) {
+      image.style.setProperty(
+        "transform",
+        expectedTransform,
+        "important"
+      );
+    }
   };
 
   applyZoom();
