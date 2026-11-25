@@ -560,37 +560,67 @@ function v6ApplyPhotoZoom(app) {
     actor.documentName !== "Actor"
   ) return;
 
-  const photo =
-    root.querySelector(
-      '[data-key="Pic"], [data-key="VPic"]'
+  const applyZoom = () => {
+
+    const photo =
+      root.querySelector(
+        '[data-key="Pic"], [data-key="VPic"]'
+      );
+
+    if (!photo) return;
+
+    const image =
+      photo.querySelector("img");
+
+    if (!image) return;
+
+    const zoom =
+      Number(
+        actor.getFlag(
+          "world",
+          "v6PhotoZoom"
+        ) ?? 1
+      );
+
+    image.style.setProperty(
+      "transform-origin",
+      "50% 50%",
+      "important"
     );
 
-  if (!photo) return;
-
-  const image =
-    photo.querySelector("img");
-
-  if (!image) return;
-
-  const zoom =
-    Number(
-      actor.getFlag(
-        "world",
-        "v6PhotoZoom"
-      ) ?? 1
+    image.style.setProperty(
+      "transform",
+      `scale(${zoom})`,
+      "important"
     );
+  };
 
-  image.style.setProperty(
-    "transform-origin",
-    "50% 50%",
-    "important"
+  applyZoom();
+
+  if (root._v6PhotoZoomObserver) {
+    return;
+  }
+
+  const observer =
+    new MutationObserver(() => {
+      applyZoom();
+    });
+
+  observer.observe(
+    root,
+    {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: [
+        "style",
+        "src"
+      ]
+    }
   );
 
-  image.style.setProperty(
-    "transform",
-    `scale(${zoom})`,
-    "important"
-  );
+  root._v6PhotoZoomObserver =
+    observer;
 }
      /* =========================================
      CHARACTER SHEET SIZE
