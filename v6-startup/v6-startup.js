@@ -740,7 +740,13 @@ async function v6OpenPhotoFramingDialog(app) {
                     previewY
                 });
 
-                applyPreview();
+                delete root.dataset.v6PhotoEditorOpen;
+
+		requestAnimationFrame(() => {
+  		requestAnimationFrame(() => {
+    	v6ApplyPhotoZoom(app);
+  				});
+			});	
               }
           },
 
