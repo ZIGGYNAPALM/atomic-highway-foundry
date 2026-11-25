@@ -466,11 +466,18 @@ function v6ArmSheetPhotoPicker(app) {
       ) return;
 
       event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
+event.stopPropagation();
+event.stopImmediatePropagation();
 
-      const key =
-        photo.dataset.key;
+if (event.shiftKey) {
+
+  await v6OpenPhotoFramingDialog(app);
+
+  return;
+}
+
+const key =
+  photo.dataset.key;
 
       const current =
         String(
@@ -541,6 +548,346 @@ function v6ArmSheetPhotoPicker(app) {
     true
   );
 }
+	/* =========================================
+   V6 PHOTO FRAMING — PLAYER EDITOR
+   Shift+click portrait
+   ========================================= */
+
+async function v6OpenPhotoFramingDialog(app) {
+
+  const root =
+    app?.element;
+
+  const actor =
+    app?.actor ??
+    app?.document;
+
+  if (
+    !root ||
+    !actor ||
+    actor.documentName !== "Actor"
+  ) return;
+
+  const photo =
+    root.querySelector(
+      '[data-key="Pic"], [data-key="VPic"]'
+    );
+
+  const image =
+    photo?.querySelector("img");
+
+  if (!image) return;
+
+
+  const originalZoom =
+    Number(
+      actor.getFlag(
+        "world",
+        "v6PhotoZoom"
+      ) ?? 1
+    );
+
+  const originalX =
+    Number(
+      actor.getFlag(
+        "world",
+        "v6PhotoX"
+      ) ?? 0
+    );
+
+  const originalY =
+    Number(
+      actor.getFlag(
+        "world",
+        "v6PhotoY"
+      ) ?? 0
+    );
+
+
+  let previewZoom =
+    originalZoom;
+
+  let previewX =
+    originalX;
+
+  let previewY =
+    originalY;
+
+  let committed =
+    false;
+	root.dataset.v6PhotoEditorOpen =
+  "true";
+
+  const applyPreview = () => {
+
+    image.style.setProperty(
+      "transform",
+      `translate(${previewX}px, ${previewY}px) scale(${previewZoom})`,
+      "important"
+    );
+  };
+
+
+  const dialog =
+    await v6RenderDialogFromSheet(
+      root,
+      {
+
+        window: {
+          title:
+            `${actor.name}: Adjust Photo`
+        },
+
+        content: `
+          <div
+            style="
+              padding:12px;
+              min-width:300px;
+            "
+          >
+
+            <div style="margin-bottom:14px;">
+              <label>
+                <strong>Zoom:</strong>
+                <span id="v6-photo-zoom-value">
+                  ${previewZoom.toFixed(2)}
+                </span>
+              </label>
+
+              <input
+                id="v6-photo-zoom"
+                type="range"
+                min="1"
+                max="3"
+                step="0.05"
+                value="${previewZoom}"
+                style="width:100%;"
+              >
+            </div>
+
+
+            <div style="margin-bottom:14px;">
+              <label>
+                <strong>Left / Right:</strong>
+                <span id="v6-photo-x-value">
+                  ${previewX}
+                </span>
+              </label>
+
+              <input
+                id="v6-photo-x"
+                type="range"
+                min="-100"
+                max="100"
+                step="1"
+                value="${previewX}"
+                style="width:100%;"
+              >
+            </div>
+
+
+            <div style="margin-bottom:14px;">
+              <label>
+                <strong>Up / Down:</strong>
+                <span id="v6-photo-y-value">
+                  ${previewY}
+                </span>
+              </label>
+
+              <input
+                id="v6-photo-y"
+                type="range"
+                min="-100"
+                max="100"
+                step="1"
+                value="${previewY}"
+                style="width:100%;"
+              >
+            </div>
+
+
+            <div style="text-align:center;">
+              <button
+                type="button"
+                id="v6-photo-reset"
+              >
+                RESET
+              </button>
+            </div>
+
+          </div>
+        `,
+
+
+        render: (event, dialog) => {
+
+          const dialogRoot =
+            dialog.element;
+
+          const zoomInput =
+            dialogRoot.querySelector(
+              "#v6-photo-zoom"
+            );
+
+          const xInput =
+            dialogRoot.querySelector(
+              "#v6-photo-x"
+            );
+
+          const yInput =
+            dialogRoot.querySelector(
+              "#v6-photo-y"
+            );
+
+          const zoomValue =
+            dialogRoot.querySelector(
+              "#v6-photo-zoom-value"
+            );
+
+          const xValue =
+            dialogRoot.querySelector(
+              "#v6-photo-x-value"
+            );
+
+          const yValue =
+            dialogRoot.querySelector(
+              "#v6-photo-y-value"
+            );
+
+          const resetButton =
+            dialogRoot.querySelector(
+              "#v6-photo-reset"
+            );
+
+
+          const refreshPreview = () => {
+
+            previewZoom =
+              Number(
+                zoomInput?.value ?? 1
+              );
+
+            previewX =
+              Number(
+                xInput?.value ?? 0
+              );
+
+            previewY =
+              Number(
+                yInput?.value ?? 0
+              );
+
+
+            if (zoomValue) {
+              zoomValue.textContent =
+                previewZoom.toFixed(2);
+            }
+
+            if (xValue) {
+              xValue.textContent =
+                String(previewX);
+            }
+
+            if (yValue) {
+              yValue.textContent =
+                String(previewY);
+            }
+
+            applyPreview();
+          };
+
+
+          zoomInput?.addEventListener(
+            "input",
+            refreshPreview
+          );
+
+          xInput?.addEventListener(
+            "input",
+            refreshPreview
+          );
+
+          yInput?.addEventListener(
+            "input",
+            refreshPreview
+          );
+
+
+          if (resetButton) {
+
+            resetButton.onclick =
+              () => {
+
+                zoomInput.value = "1";
+                xInput.value = "0";
+                yInput.value = "0";
+
+                refreshPreview();
+              };
+          }
+        },
+
+
+        buttons: [
+          {
+            action: "save",
+            label: "SAVE",
+            default: true,
+
+            callback:
+              async () => {
+
+                committed = true;
+
+                await actor.update({
+                  "flags.world.v6PhotoZoom":
+                    previewZoom,
+
+                  "flags.world.v6PhotoX":
+                    previewX,
+
+                  "flags.world.v6PhotoY":
+                    previewY
+                });
+
+                applyPreview();
+              }
+          },
+
+          {
+            action: "cancel",
+            label: "CANCEL"
+          }
+        ]
+      }
+    );
+
+
+  dialog.addEventListener(
+    "close",
+    () => {
+
+		delete root.dataset.v6PhotoEditorOpen;
+		
+      if (committed) return;
+
+      previewZoom =
+        originalZoom;
+
+      previewX =
+        originalX;
+
+      previewY =
+        originalY;
+
+      applyPreview();
+    },
+    {
+      once: true
+    }
+  );
+}
+	
 	/* =========================================
    V6 PHOTO FRAMING — ZOOM TEST
    ========================================= */
@@ -722,6 +1069,10 @@ image.style.setProperty(
   "50% 50%",
   "important"
 );
+
+if (
+  root.dataset.v6PhotoEditorOpen === "true"
+) return;	  
 
 if (
   image.style.transform !==
