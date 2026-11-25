@@ -493,22 +493,50 @@ function v6ArmSheetPhotoPicker(app) {
         });
 
       if (
-        typeof app.renderChild === "function"
-      ) {
+  typeof app.renderChild === "function"
+) {
 
-        await app.renderChild(
-          picker,
-          {
-            force: true
-          }
-        );
+  await app.renderChild(
+    picker,
+    {
+      force: true
+    }
+  );
 
-      } else {
+  /*
+   * Foundry v14 registers FilePicker as the
+   * Actor sheet's child, but still inserts its
+   * element into the main Foundry document.
+   *
+   * Move the already-rendered picker into the
+   * Actor sheet's actual document.
+   */
+  const targetDocument =
+    root.ownerDocument;
 
-        await picker.render({
-          force: true
-        });
-      }
+  const pickerElement =
+    picker.element;
+
+  if (
+    pickerElement &&
+    pickerElement.ownerDocument !== targetDocument
+  ) {
+
+    targetDocument.body.appendChild(
+      targetDocument.adoptNode(
+        pickerElement
+      )
+    );
+
+    picker.setPosition();
+  }
+
+} else {
+
+  await picker.render({
+    force: true
+  });
+}
     },
     true
   );
