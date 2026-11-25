@@ -698,6 +698,14 @@ function v6ApplyPhotoZoom(app) {
     ) ?? 1
   );
 
+const photoX =
+  Number(
+    actor.getFlag(
+      "world",
+      "v6PhotoX"
+    ) ?? 0
+  );
+
 const photoY =
   Number(
     actor.getFlag(
@@ -707,8 +715,8 @@ const photoY =
   );
 
 const expectedTransform =
-  `translateY(${photoY}px) scale(${zoom})`;
-
+  `translate(${photoX}px, ${photoY}px) scale(${zoom})`;
+	  
 image.style.setProperty(
   "transform-origin",
   "50% 50%",
