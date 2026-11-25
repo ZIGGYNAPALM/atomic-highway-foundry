@@ -672,6 +672,11 @@ function v6ApplyPhotoZoom(app) {
         "important"
       );
 
+	  image.style.setProperty(
+  		"object-fit",
+  		"cover",
+  		"important"
+	  );	
       image.style.setProperty(
         "max-width",
         "none",
