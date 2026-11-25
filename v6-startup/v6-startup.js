@@ -541,6 +541,63 @@ function v6ArmSheetPhotoPicker(app) {
     true
   );
 }
+	/* =========================================
+   V6 PHOTO FRAMING — ZOOM TEST
+   ========================================= */
+
+function v6ApplyPhotoZoom(app) {
+
+  const root =
+    app?.element;
+
+  const actor =
+    app?.actor ??
+    app?.document;
+
+  if (
+    !root ||
+    !actor ||
+    actor.documentName !== "Actor"
+  ) return;
+
+  const photo =
+    root.querySelector(
+      '[data-key="Pic"], [data-key="VPic"]'
+    );
+
+  if (!photo) return;
+
+  const image =
+    photo.querySelector("img");
+
+  if (!image) return;
+
+  const zoom =
+    Number(
+      actor.getFlag(
+        "world",
+        "v6PhotoZoom"
+      ) ?? 1
+    );
+
+  photo.style.setProperty(
+    "overflow",
+    "hidden",
+    "important"
+  );
+
+  image.style.setProperty(
+    "transform-origin",
+    "50% 50%",
+    "important"
+  );
+
+  image.style.setProperty(
+    "transform",
+    `scale(${zoom})`,
+    "important"
+  );
+}
      /* =========================================
      CHARACTER SHEET SIZE
      ========================================= */
@@ -4315,6 +4372,7 @@ v6KillCsbActorChrome(app.element);
 v6InstallTemplateControls(app);
 v6ArmEmbeddedItemLinks(app);
 v6ArmSheetPhotoPicker(app);
+v6ApplyPhotoZoom(app);
 /*
  * V6 CROSS-WINDOW INITIALIZATION
  * Re-arm all actor-sheet enhancements whether
