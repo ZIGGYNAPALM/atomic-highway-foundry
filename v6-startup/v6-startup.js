@@ -425,6 +425,94 @@ Hooks.on(
 
   }
 );
+	/* =========================================
+   V6 SHEET PHOTO PICKER
+   Character / Vehicle / Beast
+   ========================================= */
+
+function v6ArmSheetPhotoPicker(app) {
+
+  const root =
+    app?.element;
+
+  const actor =
+    app?.actor ??
+    app?.document;
+
+  if (
+    !root ||
+    !actor ||
+    actor.documentName !== "Actor"
+  ) return;
+
+  if (
+    root.dataset.v6PhotoPickerArmed === "true"
+  ) return;
+
+  root.dataset.v6PhotoPickerArmed = "true";
+
+  root.addEventListener(
+    "click",
+    async event => {
+
+      const photo =
+        event.target?.closest?.(
+          '[data-key="Pic"], [data-key="VPic"]'
+        );
+
+      if (
+        !photo ||
+        !root.contains(photo)
+      ) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const key =
+        photo.dataset.key;
+
+      const current =
+        String(
+          actor.system?.props?.[key] ?? ""
+        );
+
+      const picker =
+        new foundry.applications.apps.FilePicker({
+          type: "image",
+          current,
+
+          callback: async path => {
+
+            if (!path) return;
+
+            await actor.update({
+              [`system.props.${key}`]: path
+            });
+          }
+        });
+
+      if (
+        typeof app.renderChild === "function"
+      ) {
+
+        await app.renderChild(
+          picker,
+          {
+            force: true
+          }
+        );
+
+      } else {
+
+        await picker.render({
+          force: true
+        });
+      }
+    },
+    true
+  );
+}
      /* =========================================
      CHARACTER SHEET SIZE
      ========================================= */
@@ -4198,6 +4286,7 @@ Hooks.on("renderApplicationV2", async (app, element) => {
 v6KillCsbActorChrome(app.element);
 v6InstallTemplateControls(app);
 v6ArmEmbeddedItemLinks(app);
+v6ArmSheetPhotoPicker(app);
 /*
  * V6 CROSS-WINDOW INITIALIZATION
  * Re-arm all actor-sheet enhancements whether
