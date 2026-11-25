@@ -4511,6 +4511,8 @@ if (detachedRoot) {
 
   v6RefreshDetachedChrome();
 
+  v6ApplyPhotoZoom(app);
+	
   v6ArmBeastAttack1();
   v6ArmBeastAttack2();
 	
