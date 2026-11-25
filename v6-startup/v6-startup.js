@@ -718,116 +718,6 @@ async function v6OpenPhotoFramingDialog(app) {
           </div>
         `,
 
-
-        render: (event, dialog) => {
-
-          const dialogRoot =
-            dialog.element;
-
-          const zoomInput =
-            dialogRoot.querySelector(
-              "#v6-photo-zoom"
-            );
-
-          const xInput =
-            dialogRoot.querySelector(
-              "#v6-photo-x"
-            );
-
-          const yInput =
-            dialogRoot.querySelector(
-              "#v6-photo-y"
-            );
-
-          const zoomValue =
-            dialogRoot.querySelector(
-              "#v6-photo-zoom-value"
-            );
-
-          const xValue =
-            dialogRoot.querySelector(
-              "#v6-photo-x-value"
-            );
-
-          const yValue =
-            dialogRoot.querySelector(
-              "#v6-photo-y-value"
-            );
-
-          const resetButton =
-            dialogRoot.querySelector(
-              "#v6-photo-reset"
-            );
-
-
-          const refreshPreview = () => {
-
-            previewZoom =
-              Number(
-                zoomInput?.value ?? 1
-              );
-
-            previewX =
-              Number(
-                xInput?.value ?? 0
-              );
-
-            previewY =
-              Number(
-                yInput?.value ?? 0
-              );
-
-
-            if (zoomValue) {
-              zoomValue.textContent =
-                previewZoom.toFixed(2);
-            }
-
-            if (xValue) {
-              xValue.textContent =
-                String(previewX);
-            }
-
-            if (yValue) {
-              yValue.textContent =
-                String(previewY);
-            }
-
-            applyPreview();
-          };
-
-
-          zoomInput?.addEventListener(
-            "input",
-            refreshPreview
-          );
-
-          xInput?.addEventListener(
-            "input",
-            refreshPreview
-          );
-
-          yInput?.addEventListener(
-            "input",
-            refreshPreview
-          );
-
-
-          if (resetButton) {
-
-            resetButton.onclick =
-              () => {
-
-                zoomInput.value = "1";
-                xInput.value = "0";
-                yInput.value = "0";
-
-                refreshPreview();
-              };
-          }
-        },
-
-
         buttons: [
           {
             action: "save",
@@ -861,7 +751,110 @@ async function v6OpenPhotoFramingDialog(app) {
         ]
       }
     );
+	const dialogRoot =
+  dialog.element;
 
+const zoomInput =
+  dialogRoot.querySelector(
+    "#v6-photo-zoom"
+  );
+
+const xInput =
+  dialogRoot.querySelector(
+    "#v6-photo-x"
+  );
+
+const yInput =
+  dialogRoot.querySelector(
+    "#v6-photo-y"
+  );
+
+const zoomValue =
+  dialogRoot.querySelector(
+    "#v6-photo-zoom-value"
+  );
+
+const xValue =
+  dialogRoot.querySelector(
+    "#v6-photo-x-value"
+  );
+
+const yValue =
+  dialogRoot.querySelector(
+    "#v6-photo-y-value"
+  );
+
+const resetButton =
+  dialogRoot.querySelector(
+    "#v6-photo-reset"
+  );
+
+
+const refreshPreview = () => {
+
+  previewZoom =
+    Number(
+      zoomInput?.value ?? 1
+    );
+
+  previewX =
+    Number(
+      xInput?.value ?? 0
+    );
+
+  previewY =
+    Number(
+      yInput?.value ?? 0
+    );
+
+
+  if (zoomValue) {
+    zoomValue.textContent =
+      previewZoom.toFixed(2);
+  }
+
+  if (xValue) {
+    xValue.textContent =
+      String(previewX);
+  }
+
+  if (yValue) {
+    yValue.textContent =
+      String(previewY);
+  }
+
+  applyPreview();
+};
+
+
+zoomInput?.addEventListener(
+  "input",
+  refreshPreview
+);
+
+xInput?.addEventListener(
+  "input",
+  refreshPreview
+);
+
+yInput?.addEventListener(
+  "input",
+  refreshPreview
+);
+
+
+if (resetButton) {
+
+  resetButton.onclick =
+    () => {
+
+      zoomInput.value = "1";
+      xInput.value = "0";
+      yInput.value = "0";
+
+      refreshPreview();
+    };
+}
 
   dialog.addEventListener(
     "close",
