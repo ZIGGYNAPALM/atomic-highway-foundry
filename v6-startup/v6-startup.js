@@ -580,12 +580,6 @@ function v6ApplyPhotoZoom(app) {
       ) ?? 1
     );
 
-  photo.style.setProperty(
-    "overflow",
-    "hidden",
-    "important"
-  );
-
   image.style.setProperty(
     "transform-origin",
     "50% 50%",
