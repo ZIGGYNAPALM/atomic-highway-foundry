@@ -691,32 +691,40 @@ function v6ApplyPhotoZoom(app) {
     }
 
     const zoom =
-      Number(
-        actor.getFlag(
-          "world",
-          "v6PhotoZoom"
-        ) ?? 1
-      );
+  Number(
+    actor.getFlag(
+      "world",
+      "v6PhotoZoom"
+    ) ?? 1
+  );
 
-    const expectedTransform =
-      `scale(${zoom})`;
+const photoY =
+  Number(
+    actor.getFlag(
+      "world",
+      "v6PhotoY"
+    ) ?? 0
+  );
 
-    image.style.setProperty(
-      "transform-origin",
-      "50% 50%",
-      "important"
-    );
+const expectedTransform =
+  `translateY(${photoY}px) scale(${zoom})`;
 
-    if (
-      image.style.transform !==
-      expectedTransform
-    ) {
-      image.style.setProperty(
-        "transform",
-        expectedTransform,
-        "important"
-      );
-    }
+image.style.setProperty(
+  "transform-origin",
+  "50% 50%",
+  "important"
+);
+
+if (
+  image.style.transform !==
+  expectedTransform
+) {
+  image.style.setProperty(
+    "transform",
+    expectedTransform,
+    "important"
+  );
+}
   };
 
   applyZoom();
