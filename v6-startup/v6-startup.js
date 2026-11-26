@@ -212,6 +212,59 @@ function v6KillCsbActorChrome(root) {
   }
 }
 	/* =========================================
+   V6 KILL NATIVE CSB ITEM CHROME
+   ========================================= */
+
+function v6KillCsbItemChrome(root) {
+
+  if (
+    !root ||
+    typeof root.querySelectorAll !== "function"
+  ) return;
+
+  const selectors = [
+    ".custom-system-item-content .sheet-header .profile-img-container",
+    ".custom-system-item-content .sheet-header h1.charname",
+    ".custom-system-template-select",
+    ".custom-system-sheet-actions"
+  ];
+
+  for (const selector of selectors) {
+
+    root
+      .querySelectorAll(selector)
+      .forEach(element => {
+
+        element.style.setProperty(
+          "display",
+          "none",
+          "important"
+        );
+
+      });
+  }
+}
+
+
+Hooks.on(
+  "renderApplicationV2",
+  app => {
+
+    const item =
+      app?.item ??
+      app?.document;
+
+    if (
+      !item ||
+      item.documentName !== "Item"
+    ) return;
+
+    v6KillCsbItemChrome(
+      app.element
+    );
+  }
+);
+	/* =========================================
    V6 CHILD SHEET — REAL DETACH BUTTON
    ========================================= */
 
