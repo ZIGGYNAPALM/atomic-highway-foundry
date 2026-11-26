@@ -1842,18 +1842,7 @@ const isVehicle =
     sheet.querySelector('[data-key="HMULT"] select');
 
   if (healthMultDrum && !isVehicle) {
-	      healthMultDrum.style.setProperty(
-      "color",
-      "white",
-      "important"
-    );
-
-    healthMultDrum.style.setProperty(
-      "-webkit-text-fill-color",
-      "white",
-      "important"
-    );
-	  
+	      	  
     const digit = Math.max(
       0,
       Math.min(
