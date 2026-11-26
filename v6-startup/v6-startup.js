@@ -356,16 +356,17 @@ function v6InstallTemplateControls(app) {
   const root =
     app?.element;
 
-  const actor =
-    app?.actor ??
-    app?.document;
+  const entity =
+  app?.actor ??
+  app?.item ??
+  app?.document;
 
-  if (
-    !root ||
-    !actor ||
-    actor.documentName !== "Actor" ||
-    typeof root.querySelector !== "function"
-  ) return;
+if (
+  !root ||
+  !entity ||
+  !["Actor", "Item"].includes(entity.documentName) ||
+  typeof root.querySelector !== "function"
+) return;
 
   if (
     root.querySelector(".v6-template-controls")
@@ -412,7 +413,7 @@ function v6InstallTemplateControls(app) {
   ) {
     console.warn(
       "V6 TEMPLATE CONTROLS: Native CSB controls not found.",
-      actor.name
+      entity.name
     );
 
     return;
@@ -427,7 +428,7 @@ function v6InstallTemplateControls(app) {
 
     console.warn(
       "V6 TEMPLATE CONTROLS: CSB update control not found.",
-      actor.name
+      entity.name
     );
 
     return;
@@ -621,13 +622,14 @@ Hooks.on(
   "renderApplicationV2",
   app => {
 
-    const actor =
+    const entity =
       app?.actor ??
+      app?.item ??
       app?.document;
 
     if (
-      !actor ||
-      actor.documentName !== "Actor"
+      !entity ||
+      !["Actor", "Item"].includes(entity.documentName)
     ) return;
 
     v6InstallTemplateControls(app);
