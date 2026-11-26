@@ -6,6 +6,162 @@
 Hooks.once("ready", async () => {
 
   console.log("V6 STARTUP — SORK");
+	  /* =========================================
+     V6 CSB CROSS-WINDOW COMPATIBILITY PATCH
+     Fix TemplateSystem.isModified in detached
+     browser windows.
+     ========================================= */
+
+  function v6PatchCsbCrossWindowIsModified() {
+
+    const candidates = [
+      ...game.actors,
+      ...game.items
+    ];
+
+    const templateSystem =
+      candidates
+        .map(entity => entity?.templateSystem)
+        .find(system => {
+
+          if (!system) return false;
+
+          const prototype =
+            Object.getPrototypeOf(system);
+
+          const descriptor =
+            Object.getOwnPropertyDescriptor(
+              prototype,
+              "isModified"
+            );
+
+          return Boolean(
+            descriptor?.set
+          );
+        });
+
+    if (!templateSystem) {
+
+      console.warn(
+        "V6 CSB PATCH: TemplateSystem not found."
+      );
+
+      return;
+    }
+
+
+    const prototype =
+      Object.getPrototypeOf(templateSystem);
+
+
+    if (
+      prototype._v6CrossWindowIsModifiedPatched === true
+    ) return;
+
+
+    const descriptor =
+      Object.getOwnPropertyDescriptor(
+        prototype,
+        "isModified"
+      );
+
+    if (!descriptor?.set) {
+
+      console.warn(
+        "V6 CSB PATCH: isModified setter not found."
+      );
+
+      return;
+    }
+
+
+    Object.defineProperty(
+      prototype,
+      "isModified",
+      {
+        ...descriptor,
+
+        set(modificationFlag) {
+
+          /*
+           * Preserve CSB's normal behavior.
+           */
+          this._modificationFlag =
+            modificationFlag;
+
+
+          const sheet =
+            this.entity?.sheet;
+
+          const sheetElement =
+            sheet?.element;
+
+
+          /*
+           * ApplicationV2 / native DOM path.
+           *
+           * querySelector works even when the
+           * HTMLElement belongs to another
+           * browser window.
+           */
+          const title =
+            sheetElement?.querySelector?.(
+              ".window-title"
+            );
+
+          if (title) {
+
+            const cache =
+              [...title.children];
+
+            title.textContent =
+              sheet?.title ?? "";
+
+            title.append(...cache);
+
+            return;
+          }
+
+
+          /*
+           * Legacy / jQuery fallback.
+           */
+          const jqueryTitle =
+            sheetElement?.find?.(
+              ".window-title"
+            );
+
+          if (jqueryTitle?.length) {
+
+            const cache =
+              jqueryTitle.children();
+
+            jqueryTitle
+              .text(sheet?.title ?? "")
+              .append(cache);
+          }
+        }
+      }
+    );
+
+
+    Object.defineProperty(
+      prototype,
+      "_v6CrossWindowIsModifiedPatched",
+      {
+        value: true,
+        configurable: true
+      }
+    );
+
+
+    console.log(
+      "V6 CSB CROSS-WINDOW PATCH — SORK"
+    );
+  }
+
+
+  v6PatchCsbCrossWindowIsModified();
 /* =========================================
    V6 APPLICATION ROOTS
    Main Foundry + detached browser windows
