@@ -629,6 +629,15 @@ if (
   );
 
   refreshVisibility();
+
+/*
+ * Our replacement controls now exist,
+ * so hide CSB's native Item controls.
+ */
+v6KillCsbItemChrome(
+  root,
+  entity
+);
 }
 
 
