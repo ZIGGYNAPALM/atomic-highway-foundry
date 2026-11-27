@@ -4101,13 +4101,21 @@ if (button.title !== attackTitle) {
       /*
        * Attribute supplies the dice pool.
        */
-      const attributeProperty =
+  const attributeProperty =
   currentProps[attributeKey] ??
   attributeKey;
 
+const resolvedAttributeKey =
+  Object.keys(currentProps).find(
+    key =>
+      key.toLowerCase() ===
+      String(attributeProperty).toLowerCase()
+  ) ??
+  attributeProperty;
+
 let pool =
   Number(
-    currentProps[attributeProperty] ??
+    currentProps[resolvedAttributeKey] ??
     0
   );
 
@@ -4130,13 +4138,21 @@ let pool =
        * Selected Beast skill supplies
        * Skill Points.
        */
-     const skillProperty =
+ const skillProperty =
   currentProps[skillKey] ??
   skillKey;
 
+const resolvedSkillKey =
+  Object.keys(currentProps).find(
+    key =>
+      key.toLowerCase() ===
+      String(skillProperty).toLowerCase()
+  ) ??
+  skillProperty;
+
 const skill =
   Number(
-    currentProps[skillProperty] ??
+    currentProps[resolvedSkillKey] ??
     0
   );
 
