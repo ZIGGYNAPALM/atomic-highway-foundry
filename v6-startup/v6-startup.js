@@ -3709,13 +3709,26 @@ if (button.title !== attackTitle) {
 
     button.style.cursor = "pointer";
 
-    button.onclick = async event => {
+   button.onclick = async event => {
 
-      event.preventDefault();
-      event.stopPropagation();
+  event.preventDefault();
+  event.stopPropagation();
 
-      const currentProps =
-        actor.system?.props ?? {};
+  button.animate(
+    [
+      { transform: "scale(1)" },
+      { transform: "scale(0.90)" },
+      { transform: "scale(1.08)" },
+      { transform: "scale(1)" }
+    ],
+    {
+      duration: 220,
+      easing: "ease-out"
+    }
+  );
+
+  const currentProps =
+    actor.system?.props ?? {};
 
 
       /* =====================================
