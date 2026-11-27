@@ -4894,7 +4894,84 @@ for (const actor of game.actors) {
   void v6SyncActorIdentity(actor);
 
 }
-	
+	/* =========================================
+   V6 ITEM IDENTITY SYNC
+   Template Picture -> Native Foundry Item
+   ========================================= */
+
+globalThis.v6ItemIdentitySyncing ??=
+  new WeakSet();
+
+async function v6SyncItemIdentity(item) {
+
+  if (
+    !item ||
+    item.documentName !== "Item" ||
+    globalThis.v6ItemIdentitySyncing.has(item)
+  ) return;
+
+  const rawImage =
+    item.system?.props?.pic;
+
+  const img =
+    typeof rawImage === "string"
+      ? rawImage.trim()
+      : String(
+          rawImage?.path ??
+          rawImage?.src ??
+          rawImage?.img ??
+          ""
+        ).trim();
+
+  if (
+    !img ||
+    item.img === img
+  ) return;
+
+  globalThis.v6ItemIdentitySyncing.add(item);
+
+  try {
+
+    await item.update({
+      img
+    });
+
+    console.log(
+      "V6 ITEM IMAGE SYNC:",
+      item.name
+    );
+
+  } finally {
+
+    globalThis.v6ItemIdentitySyncing.delete(item);
+
+  }
+}
+
+
+/*
+ * Keep native Foundry Item image synchronized
+ * whenever CSB Item data changes.
+ */
+Hooks.on(
+  "updateItem",
+  async item => {
+
+    await v6SyncItemIdentity(item);
+
+  }
+);
+
+
+/*
+ * Synchronize Items that already existed
+ * when the world loaded.
+ */
+for (const item of game.items) {
+
+  void v6SyncItemIdentity(item);
+
+}
  /* =========================================
    AUTO-PRONE / VEHICLE WRECKED AT ZERO HEALTH
    ========================================= */
