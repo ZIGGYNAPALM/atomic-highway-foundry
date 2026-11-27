@@ -234,13 +234,17 @@ function v6KillCsbItemChrome(root, item) {
    * Brand-new Items need the native controls
    * temporarily so a template can be selected.
    */
-  if (item?.system?.template) {
+  if (
+  root.querySelector(
+    ".v6-template-controls"
+  )
+) {
 
-    selectors.push(
-      ".custom-system-template-select",
-      ".custom-system-sheet-actions"
-    );
-  }
+  selectors.push(
+    ".custom-system-template-select",
+    ".custom-system-sheet-actions"
+  );
+}
 
   for (const selector of selectors) {
 
