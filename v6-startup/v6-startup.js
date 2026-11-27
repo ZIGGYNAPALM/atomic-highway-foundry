@@ -215,7 +215,7 @@ function v6KillCsbActorChrome(root) {
    V6 KILL NATIVE CSB ITEM CHROME
    ========================================= */
 
-function v6KillCsbItemChrome(root) {
+function v6KillCsbItemChrome(root, item) {
 
   if (
     !root ||
@@ -224,10 +224,23 @@ function v6KillCsbItemChrome(root) {
 
   const selectors = [
     ".custom-system-item-content .sheet-header .profile-img-container",
-    ".custom-system-item-content .sheet-header h1.charname",
-    ".custom-system-template-select",
-    ".custom-system-sheet-actions"
+    ".custom-system-item-content .sheet-header h1.charname"
   ];
+
+  /*
+   * Once an Item has a template, hide CSB's
+   * native template controls and use our V6 proxy.
+   *
+   * Brand-new Items need the native controls
+   * temporarily so a template can be selected.
+   */
+  if (item?.system?.template) {
+
+    selectors.push(
+      ".custom-system-template-select",
+      ".custom-system-sheet-actions"
+    );
+  }
 
   for (const selector of selectors) {
 
@@ -245,7 +258,6 @@ function v6KillCsbItemChrome(root) {
   }
 }
 
-
 Hooks.on(
   "renderApplicationV2",
   app => {
@@ -260,8 +272,9 @@ Hooks.on(
     ) return;
 
     v6KillCsbItemChrome(
-      app.element
-    );
+  app.element,
+  item
+);
   }
 );
 	/* =========================================
