@@ -3714,21 +3714,7 @@ if (button.title !== attackTitle) {
   event.preventDefault();
   event.stopPropagation();
 
-  button.animate(
-    button.animate(
-  [
-    { transform: "translateY(0px) scale(1)" },
-    { transform: "translateY(2px) scale(0.96)" },
-    { transform: "translateY(-1px) scale(1)" },
-    { transform: "translateY(0px) scale(1)" }
-  ],
-  {
-    duration: 140,
-    easing: "ease-out"
-  }
-);
-
-  const currentProps =
+ const currentProps =
     actor.system?.props ?? {};
 
 
