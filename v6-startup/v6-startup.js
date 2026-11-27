@@ -4101,9 +4101,18 @@ if (button.title !== attackTitle) {
       /*
        * Attribute supplies the dice pool.
        */
-  const attributeProperty =
-  currentProps[attributeKey] ??
-  attributeKey;
+ const attributeReference =
+  currentProps[attributeKey];
+
+const attributeProperty =
+  typeof attributeReference === "string" &&
+  Object.keys(currentProps).some(
+    key =>
+      key.toLowerCase() ===
+      attributeReference.toLowerCase()
+  )
+    ? attributeReference
+    : attributeKey;
 
 const resolvedAttributeKey =
   Object.keys(currentProps).find(
@@ -4138,9 +4147,18 @@ let pool =
        * Selected Beast skill supplies
        * Skill Points.
        */
- const skillProperty =
-  currentProps[skillKey] ??
-  skillKey;
+ const skillReference =
+  currentProps[skillKey];
+
+const skillProperty =
+  typeof skillReference === "string" &&
+  Object.keys(currentProps).some(
+    key =>
+      key.toLowerCase() ===
+      skillReference.toLowerCase()
+  )
+    ? skillReference
+    : skillKey;
 
 const resolvedSkillKey =
   Object.keys(currentProps).find(
@@ -4679,9 +4697,18 @@ if (button.title !== savedTitle) {
       /*
        * Attribute supplies the dice pool.
        */
-     const attributeProperty =
-  currentProps[attributeKey] ??
-  attributeKey;
+  const attributeReference =
+  currentProps[attributeKey];
+
+const attributeProperty =
+  typeof attributeReference === "string" &&
+  Object.keys(currentProps).some(
+    key =>
+      key.toLowerCase() ===
+      attributeReference.toLowerCase()
+  )
+    ? attributeReference
+    : attributeKey;
 
 const resolvedAttributeKey =
   Object.keys(currentProps).find(
@@ -4717,9 +4744,18 @@ let pool =
        * Selected Beast skill supplies
        * Skill Points.
        */
-      const skillProperty =
-  currentProps[skillKey] ??
-  skillKey;
+  const skillReference =
+  currentProps[skillKey];
+
+const skillProperty =
+  typeof skillReference === "string" &&
+  Object.keys(currentProps).some(
+    key =>
+      key.toLowerCase() ===
+      skillReference.toLowerCase()
+  )
+    ? skillReference
+    : skillKey;
 
 const resolvedSkillKey =
   Object.keys(currentProps).find(
