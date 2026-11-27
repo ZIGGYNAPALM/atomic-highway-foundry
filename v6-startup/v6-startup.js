@@ -4679,11 +4679,23 @@ if (button.title !== savedTitle) {
       /*
        * Attribute supplies the dice pool.
        */
-      let pool =
-        Number(
-          currentProps[attributeKey] ??
-          0
-        );
+     const attributeProperty =
+  currentProps[attributeKey] ??
+  attributeKey;
+
+const resolvedAttributeKey =
+  Object.keys(currentProps).find(
+    key =>
+      key.toLowerCase() ===
+      String(attributeProperty).toLowerCase()
+  ) ??
+  attributeProperty;
+
+let pool =
+  Number(
+    currentProps[resolvedAttributeKey] ??
+    0
+  );
 
 
       /*
@@ -4705,11 +4717,23 @@ if (button.title !== savedTitle) {
        * Selected Beast skill supplies
        * Skill Points.
        */
-      const skill =
-        Number(
-          currentProps[skillKey] ??
-          0
-        );
+      const skillProperty =
+  currentProps[skillKey] ??
+  skillKey;
+
+const resolvedSkillKey =
+  Object.keys(currentProps).find(
+    key =>
+      key.toLowerCase() ===
+      String(skillProperty).toLowerCase()
+  ) ??
+  skillProperty;
+
+const skill =
+  Number(
+    currentProps[resolvedSkillKey] ??
+    0
+  );
 
 
       const rollEngine =
