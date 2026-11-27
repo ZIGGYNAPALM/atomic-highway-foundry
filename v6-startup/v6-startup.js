@@ -4101,12 +4101,15 @@ if (button.title !== attackTitle) {
       /*
        * Attribute supplies the dice pool.
        */
-      let pool =
-        Number(
-          currentProps[attributeKey] ??
-          0
-        );
+      const attributeProperty =
+  currentProps[attributeKey] ??
+  attributeKey;
 
+let pool =
+  Number(
+    currentProps[attributeProperty] ??
+    0
+  );
 
       /*
        * Attribute values above 5 become
@@ -4127,11 +4130,15 @@ if (button.title !== attackTitle) {
        * Selected Beast skill supplies
        * Skill Points.
        */
-      const skill =
-        Number(
-          currentProps[skillKey] ??
-          0
-        );
+     const skillProperty =
+  currentProps[skillKey] ??
+  skillKey;
+
+const skill =
+  Number(
+    currentProps[skillProperty] ??
+    0
+  );
 
 
       const rollEngine =
