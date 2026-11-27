@@ -4148,7 +4148,14 @@ if (button.title !== attackTitle) {
         return;
       }
 
-
+		console.log("V6 BEAST ATTACK 1 DEBUG:", {
+  attributeKey,
+  rawAttribute: currentProps[attributeKey],
+  pool,
+  skillKey,
+  rawSkill: currentProps[skillKey],
+  skill
+});
       await rollEngine.execute({
 
         pool,
