@@ -5209,12 +5209,94 @@ function v6ArmUnarmedCombat() {
 
             callback: async () => {
 
-              console.log(
-                "V6 UNARMED: SHOVE",
-                actor.name
-              );
+  const currentProps =
+    actor.system?.props ?? {};
 
-            }
+  const resolvedMuscleKey =
+    Object.keys(currentProps).find(
+      key =>
+        key.toLowerCase() ===
+        "muscle"
+    ) ??
+    "Muscle";
+
+  let pool =
+    Number(
+      currentProps[resolvedMuscleKey] ??
+      0
+    );
+
+  /*
+   * Attributes above 5 become
+   * automatic successes.
+   */
+  let autoSuccesses = 0;
+
+  if (pool > 5) {
+
+    autoSuccesses =
+      pool - 5;
+
+    pool = 5;
+  }
+
+  const resolvedBrawlKey =
+    Object.keys(currentProps).find(
+      key =>
+        key.toLowerCase() ===
+        "brawl"
+    ) ??
+    "Brawl";
+
+  const skill =
+    Number(
+      currentProps[resolvedBrawlKey] ??
+      0
+    );
+
+  const rollEngine =
+    game.macros.getName(
+      "V6 Roll Engine"
+    );
+
+  if (!rollEngine) {
+
+    ui.notifications.error(
+      "V6 Roll Engine macro not found."
+    );
+
+    return;
+  }
+
+  console.log(
+    "V6 UNARMED SHOVE:",
+    {
+      actor: actor.name,
+      pool,
+      autoSuccesses,
+      skill
+    }
+  );
+
+  await rollEngine.execute({
+
+    pool,
+    autoSuccesses,
+
+    name:
+      "SHOVE",
+
+    skill,
+
+    props:
+      currentProps,
+
+    actorId:
+      actor.id
+
+  });
+
+}
           },
 
           {
