@@ -5113,12 +5113,94 @@ function v6ArmUnarmedCombat() {
 
             callback: async () => {
 
-              console.log(
-                "V6 UNARMED: TRIP",
-                actor.name
-              );
+  const currentProps =
+    actor.system?.props ?? {};
 
-            }
+  const resolvedNimblenessKey =
+    Object.keys(currentProps).find(
+      key =>
+        key.toLowerCase() ===
+        "nimbleness"
+    ) ??
+    "Nimbleness";
+
+  let pool =
+    Number(
+      currentProps[resolvedNimblenessKey] ??
+      0
+    );
+
+  /*
+   * Attributes above 5 become
+   * automatic successes.
+   */
+  let autoSuccesses = 0;
+
+  if (pool > 5) {
+
+    autoSuccesses =
+      pool - 5;
+
+    pool = 5;
+  }
+
+  const resolvedBrawlKey =
+    Object.keys(currentProps).find(
+      key =>
+        key.toLowerCase() ===
+        "brawl"
+    ) ??
+    "Brawl";
+
+  const skill =
+    Number(
+      currentProps[resolvedBrawlKey] ??
+      0
+    );
+
+  const rollEngine =
+    game.macros.getName(
+      "V6 Roll Engine"
+    );
+
+  if (!rollEngine) {
+
+    ui.notifications.error(
+      "V6 Roll Engine macro not found."
+    );
+
+    return;
+  }
+
+  console.log(
+    "V6 UNARMED TRIP:",
+    {
+      actor: actor.name,
+      pool,
+      autoSuccesses,
+      skill
+    }
+  );
+
+  await rollEngine.execute({
+
+    pool,
+    autoSuccesses,
+
+    name:
+      "TRIP",
+
+    skill,
+
+    props:
+      currentProps,
+
+    actorId:
+      actor.id
+
+  });
+
+}
           },
 
           {
