@@ -4834,6 +4834,129 @@ globalThis.v6BeastAttack2Observer.observe(
 
 v6ArmBeastAttack2();
 
+	/* =========================================
+   V6 CHARACTER — UNARMED COMBAT MENU
+   ========================================= */
+
+function v6ArmUnarmedCombat() {
+
+  const sheets =
+    v6GetApplicationRoots();
+
+  for (const sheet of sheets) {
+
+    const button =
+      sheet.querySelector(
+        '[data-key="FIST"] > a.button.custom-system-label-root'
+      );
+
+    if (!button) continue;
+
+    const actor =
+      game.actors.find(a =>
+        sheet.id?.includes(a.id)
+      );
+
+    if (!actor) continue;
+
+    const characterTemplate =
+      game.actors.getName("Character");
+
+    if (
+      !characterTemplate ||
+      actor.system?.template !== characterTemplate.id
+    ) continue;
+
+    if (
+      button.dataset.v6UnarmedArmed === "true"
+    ) continue;
+
+    button.dataset.v6UnarmedArmed = "true";
+
+    button.onclick = async event => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      await v6RenderDialogFromSheet(
+        sheet,
+        {
+          window: {
+            title:
+              `${actor.name}: Unarmed Combat`
+          },
+
+          content: `
+            <div
+              style="
+                padding:10px;
+                text-align:center;
+              "
+            >
+              Choose an unarmed combat maneuver.
+            </div>
+          `,
+
+          buttons: [
+            {
+              action: "strike",
+              label: "STRIKE",
+
+              callback: async () => {
+                console.log(
+                  "V6 UNARMED: STRIKE",
+                  actor.name
+                );
+              }
+            },
+
+            {
+              action: "trip",
+              label: "TRIP / SHOVE",
+
+              callback: async () => {
+                console.log(
+                  "V6 UNARMED: TRIP / SHOVE",
+                  actor.name
+                );
+              }
+            },
+
+            {
+              action: "grapple",
+              label: "GRAPPLE",
+
+              callback: async () => {
+                console.log(
+                  "V6 UNARMED: GRAPPLE",
+                  actor.name
+                );
+              }
+            },
+
+            {
+              action: "block",
+              label: "BLOCK",
+
+              callback: async () => {
+                console.log(
+                  "V6 UNARMED: BLOCK",
+                  actor.name
+                );
+              }
+            },
+
+            {
+              action: "cancel",
+              label: "CANCEL"
+            }
+          ]
+        }
+      );
+    };
+  }
+}
+	
 /* =========================================
    V6 ACTOR IDENTITY SYNC
    Sheet Name / Portrait -> Native Foundry Actor
@@ -5312,6 +5435,7 @@ void v6ArmStables();
 
 v6ArmBeastAttack1();
 v6ArmBeastAttack2();
+v6ArmUnarmedCombat();	
 if (app._v6RenderAsChild === true) {
 
   app.setPosition({
@@ -5390,7 +5514,7 @@ if (detachedRoot) {
 
       v6ArmBeastAttack1();
       v6ArmBeastAttack2();
-
+	  v6ArmUnarmedCombat();
     });
 
   detachedObserver.observe(
@@ -5410,7 +5534,7 @@ if (detachedRoot) {
 	
   v6ArmBeastAttack1();
   v6ArmBeastAttack2();
-	
+  v6ArmUnarmedCombat();	
 }
 
     console.log(
