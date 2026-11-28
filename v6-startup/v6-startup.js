@@ -4903,11 +4903,182 @@ function v6ArmUnarmedCombat() {
               label: "STRIKE",
 
               callback: async () => {
-                console.log(
-                  "V6 UNARMED: STRIKE",
-                  actor.name
-                );
-              }
+
+  const currentProps =
+    actor.system?.props ?? {};
+
+  /*
+   * Unarmed Strike always uses Brawl.
+   * The player chooses Muscle or Nimbleness
+   * as the attack Attribute.
+   */
+  const rollStrike =
+    async attributeKey => {
+
+      const resolvedAttributeKey =
+        Object.keys(currentProps).find(
+          key =>
+            key.toLowerCase() ===
+            attributeKey.toLowerCase()
+        ) ??
+        attributeKey;
+
+      let pool =
+        Number(
+          currentProps[resolvedAttributeKey] ??
+          0
+        );
+
+      /*
+       * Attributes above 5 become
+       * automatic successes.
+       */
+      let autoSuccesses = 0;
+
+      if (pool > 5) {
+
+        autoSuccesses =
+          pool - 5;
+
+        pool = 5;
+      }
+
+      const resolvedBrawlKey =
+        Object.keys(currentProps).find(
+          key =>
+            key.toLowerCase() ===
+            "brawl"
+        ) ??
+        "Brawl";
+
+      const skill =
+        Number(
+          currentProps[resolvedBrawlKey] ??
+          0
+        );
+
+      /*
+       * Damage always comes from Muscle,
+       * regardless of which Attribute was
+       * used to make the attack.
+       */
+      const resolvedMuscleKey =
+        Object.keys(currentProps).find(
+          key =>
+            key.toLowerCase() ===
+            "muscle"
+        ) ??
+        "Muscle";
+
+      const baseDamage =
+        Math.max(
+          0,
+          Number(
+            currentProps[resolvedMuscleKey] ??
+            0
+          )
+        );
+
+      const rollEngine =
+        game.macros.getName(
+          "V6 Roll Engine"
+        );
+
+      if (!rollEngine) {
+
+        ui.notifications.error(
+          "V6 Roll Engine macro not found."
+        );
+
+        return;
+      }
+
+      console.log(
+        "V6 UNARMED STRIKE:",
+        {
+          actor: actor.name,
+          attributeKey,
+          pool,
+          autoSuccesses,
+          skill,
+          baseDamage
+        }
+      );
+
+      await rollEngine.execute({
+
+        pool,
+        autoSuccesses,
+
+        name:
+          "UNARMED STRIKE",
+
+        skill,
+
+        props:
+          currentProps,
+
+        actorId:
+          actor.id,
+
+        baseDamage,
+
+        damageType:
+          "NL"
+      });
+    };
+
+
+  await v6RenderDialogFromSheet(
+    sheet,
+    {
+      window: {
+        title:
+          `${actor.name}: Unarmed Strike`
+      },
+
+      content: `
+        <div
+          style="
+            padding:10px;
+            text-align:center;
+          "
+        >
+          Choose the Attribute used to attack.
+        </div>
+      `,
+
+      buttons: [
+        {
+          action: "muscle",
+          label: "MUSCLE + BRAWL",
+
+          callback: async () => {
+            await rollStrike(
+              "Muscle"
+            );
+          }
+        },
+
+        {
+          action: "nimbleness",
+          label: "NIMBLENESS + BRAWL",
+
+          callback: async () => {
+            await rollStrike(
+              "Nimbleness"
+            );
+          }
+        },
+
+        {
+          action: "cancel",
+          label: "CANCEL"
+        }
+      ]
+    }
+  );
+}
             },
 
             {
