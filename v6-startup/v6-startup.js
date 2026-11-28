@@ -4095,7 +4095,7 @@ if (button.title !== attackTitle) {
       const damageType =
         lethal
           ? "L"
-          : "NL";
+          : "N";
 
 
       /*
@@ -4691,7 +4691,7 @@ if (button.title !== savedTitle) {
       const damageType =
         lethal
           ? "L"
-          : "NL";
+          : "N";
 
 
       /*
@@ -5024,7 +5024,7 @@ function v6ArmUnarmedCombat() {
         baseDamage,
 
         damageType:
-          "NL"
+          "N"
       });
     };
 
@@ -5082,16 +5082,69 @@ function v6ArmUnarmedCombat() {
             },
 
             {
-              action: "trip",
-              label: "TRIP / SHOVE",
+  action: "trip",
+  label: "TRIP / SHOVE",
 
-              callback: async () => {
-                console.log(
-                  "V6 UNARMED: TRIP / SHOVE",
-                  actor.name
-                );
-              }
-            },
+  callback: async () => {
+
+    await v6RenderDialogFromSheet(
+      sheet,
+      {
+        window: {
+          title:
+            `${actor.name}: Trip / Shove`
+        },
+
+        content: `
+          <div
+            style="
+              padding:10px;
+              text-align:center;
+            "
+          >
+            Choose the maneuver.
+          </div>
+        `,
+
+        buttons: [
+          {
+            action: "trip",
+            label: "TRIP",
+
+            callback: async () => {
+
+              console.log(
+                "V6 UNARMED: TRIP",
+                actor.name
+              );
+
+            }
+          },
+
+          {
+            action: "shove",
+            label: "SHOVE",
+
+            callback: async () => {
+
+              console.log(
+                "V6 UNARMED: SHOVE",
+                actor.name
+              );
+
+            }
+          },
+
+          {
+            action: "cancel",
+            label: "CANCEL"
+          }
+        ]
+      }
+    );
+
+  }
+},
 
             {
               action: "grapple",
